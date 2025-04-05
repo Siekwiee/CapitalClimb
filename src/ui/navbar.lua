@@ -6,7 +6,8 @@ local navbar = {}
 -- Tab data
 local tabs = {
     {id = "click_tab", name = "Clicker", active = false},
-    {id = "business_tab", name = "Business", active = false}
+    {id = "business_tab", name = "Business", active = false},
+    {id = "settings_tab", name = "Settings", active = false}
 }
 
 local current_tab = nil

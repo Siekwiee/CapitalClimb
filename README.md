@@ -57,9 +57,9 @@ CapitalClimb is a business idle game where players start from nothing and build 
 ## Roadmap
 
 ### Phase 1: Core Mechanics
-- [ ] Basic UI with bottom navigation tabs
-- [ ] Main clicking mechanic implementation
-- [ ] Currency system and basic upgrades
+- [x] Basic UI with top navigation tabs
+- [x] Main clicking mechanic implementation
+- [x] Currency system and basic upgrades
 - [ ] Save/load functionality
 
 ### Phase 2: Business Ventures

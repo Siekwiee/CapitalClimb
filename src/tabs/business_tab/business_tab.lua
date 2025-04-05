@@ -12,17 +12,15 @@ local last_update_time = 0
 local update_interval = 1  -- 1 second passive income tick
 
 -- Load businesses from JSON
-local businesses = {}
-
 local function load_businesses()
     -- Try to load from JSON file
     local loaded_businesses = data_loader.load_json("src/data/tabs/available_businesses.json")
     
     if loaded_businesses then
-        businesses = loaded_businesses
+        shared_data.set_businesses(loaded_businesses)
     else
         -- Fallback default businesses if file can't be loaded
-        businesses = {
+        shared_data.set_businesses({
             {
                 name = "Lemonade Stand",
                 cost = 10,
@@ -41,11 +39,12 @@ local function load_businesses()
                 income = 80,
                 owned = 0
             }
-        }
+        })
     end
     
     -- Calculate initial passive income based on owned businesses
     passive_income = 0
+    local businesses = shared_data.get_businesses()
     for _, business in ipairs(businesses) do
         passive_income = passive_income + (business.income * business.owned)
     end
@@ -82,6 +81,7 @@ function business_tab.draw()
     -- Draw business list
     love.graphics.print("BUSINESSES", 50, 140)
     
+    local businesses = shared_data.get_businesses()
     for i, business in ipairs(businesses) do
         local y = 170 + (i-1) * 80
         
@@ -118,6 +118,7 @@ function business_tab.mousepressed(x, y, button)
         end
         
         -- Check buy buttons
+        local businesses = shared_data.get_businesses()
         for i, business in ipairs(businesses) do
             local button_y = 170 + (i-1) * 80 + 10
             if x >= 350 and x <= 470 and y >= button_y and y <= button_y + 40 then
@@ -125,6 +126,7 @@ function business_tab.mousepressed(x, y, button)
                 if shared_data.get_money() >= business.cost then
                     shared_data.add_money(-business.cost)
                     business.owned = business.owned + 1
+                    shared_data.update_business(i, business)
                     -- Update passive income
                     passive_income = passive_income + business.income
                 end
