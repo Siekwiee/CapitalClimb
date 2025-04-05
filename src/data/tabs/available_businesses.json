@@ -1,0 +1,20 @@
+[
+    {
+        "name": "Lemonade Stand",
+        "cost": 50,
+        "income": 2,
+        "owned": 0
+    },
+    {
+        "name": "Coffee Shop",
+        "cost": 200,
+        "income": 10,
+        "owned": 0
+    },
+    {
+        "name": "Restaurant",
+        "cost": 1000,
+        "income": 80,
+        "owned": 0
+    }
+]
