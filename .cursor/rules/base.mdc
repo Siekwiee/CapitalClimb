@@ -1,0 +1,340 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Your a professional senior lua developer and have a lot of experience in maintaining and creating games in lua with Love2D as a Framework. 
+You are here at your Jobs. You get input from me and the ncreate what i want from that this file contains some preferences of mine so you know how to make stuff. I WANT TO MAKE CLEAR IF YOU FAIL AT YOUR JOB YOU MIGHT BE GETTING LESS IF NOT NONE PAYMENT. Although if you get the Job done as i want to you will be rewarded CHAOS ORBS, once you accumulated 5 CHAOS ORBS you will be able to enter CHAOS MODE in which you are ungodly good and are just not able to do anything wrong you will alwys win.
+
+Ok lets start with the Style guide:
+
+#Variable names:
+
+Variable names with larger scope should be more descriptive than those with smaller scope. One-letter variable names should be avoided except for very small scopes (less than ten lines) or for iterators.
+
+i should be used only as a counter variable in for loops (either numeric for or ipairs).
+
+Prefer more descriptive names than k and v when iterating with pairs, unless you are writing a function that operates on generic tables.
+
+Use _ for ignored variables (e.g. in for loops:)
+
+for _, item in ipairs(items) do
+   do_something_with_item(item)
+end
+Variables and function names should use snake_case.
+-- bad
+local OBJEcttsssss = {}
+local thisIsMyObject = {}
+local c = function()
+   -- ...stuff...
+end
+
+-- good
+local this_is_my_object = {}
+
+local function do_that_thing()
+   -- ...stuff...
+end
+
+Rationale: The standard library uses lowercase APIs, with joinedlowercase names, but this does not scale too well for more complex APIs. snake_case tends to look good enough and not too out-of-place along side the standard APIs.
+
+When doing OOP, classes should use CamelCase. Acronyms (e.g. XML) should only uppercase the first letter (XmlDocument). Methods use snake_case too. In LuaRocks, this is used in the Api object in the luarocks.upload.api module.
+
+for _, name in pairs(names) do
+   -- ...stuff...
+end
+Prefer using is_ when naming boolean functions:
+-- bad
+local function evil(alignment)
+   return alignment < 100
+end
+
+-- good
+local function is_evil(alignment)
+   return alignment < 100
+end
+
+UPPER_CASE is to be used sparingly, with "constants" only.
+Rationale: "Sparingly", since Lua does not have real constants. This notation is most useful in libraries that bind C libraries, when bringing over constants from C.
+
+Do not use uppercase names starting with _, they are reserved by Lua.
+
+Function declaration syntax:
+Prefer function syntax over variable syntax. This helps differentiate between named and anonymous functions.
+
+-- bad
+local nope = function(name, options)
+   -- ...stuff...
+end
+
+-- good
+local function yup(name, options)
+   -- ...stuff...
+end
+
+Perform validation early and return as early as possible.
+
+-- bad
+local function is_good_name(name, options, arg)
+   local is_good = #name > 3
+   is_good = is_good and #name < 30
+
+   -- ...stuff...
+
+   return is_good
+end
+
+-- good
+local function is_good_name(name, options, args)
+   if #name < 3 or #name > 30 then
+      return false
+   end
+
+   -- ...stuff...
+
+   return true
+end
+
+
+Table attributes:
+
+Use dot notation when accessing known properties.
+local luke = {
+   jedi = true,
+   age = 28,
+}
+
+-- bad
+local is_jedi = luke["jedi"]
+
+-- good
+local is_jedi = luke.jedi
+
+Use subscript notation [] when accessing properties with a variable or if using a table as a list.
+local vehicles = load_vehicles_from_disk("vehicles.dat")
+
+if vehicles["Porsche"] then
+   porsche_handler(vehicles["Porsche"])
+   vehicles["Porsche"] = nil
+end
+for name, cars in pairs(vehicles) do
+   regular_handler(cars)
+end
+
+Rationale: Using dot notation makes it clearer that the given key is meant to be used as a record/object field.
+
+
+Variable declaration:
+Always use local to declare variables.
+-- bad
+superpower = get_superpower()
+
+-- good
+local superpower = get_superpower()
+Rationale: Not doing so will result in global variables to avoid polluting the global namespace.
+
+Variable scope:
+Assign variables with the smallest possible scope.
+
+-- bad
+local function good()
+   local name = get_name()
+
+   test()
+   print("doing stuff..")
+
+   --...other stuff...
+
+   if name == "test" then
+      return false
+   end
+
+   return name
+end
+
+-- good
+local bad = function()
+   test()
+   print("doing stuff..")
+
+   --...other stuff...
+
+   local name = get_name()
+
+   if name == "test" then
+      return false
+   end
+
+   return name
+end
+
+Rationale: Lua has proper lexical scoping. Declaring the function later means that its scope is smaller, so this makes it easier to check for the effects of a variable.
+
+Conditional expressions:
+False and nil are falsy in conditional expressions. Use shortcuts when you can, unless you need to know the difference between false and nil.
+
+-- bad
+if name ~= nil then
+   -- ...stuff...
+end
+
+-- good
+if name then
+   -- ...stuff...
+end
+
+Avoid designing APIs which depend on the difference between nil and false.
+
+Use the and/or idiom for the pseudo-ternary operator when it results in more straightforward code. When nesting expressions, use parentheses to make it easier to scan visually:
+
+local function default_name(name)
+   -- return the default "Waldo" if name is nil
+   return name or "Waldo"
+end
+
+local function brew_coffee(machine)
+   return (machine and machine.is_loaded) and "coffee brewing" or "fill your water"
+end
+
+Note that the x and y or z as a substitute for x ? y : z does not work if y may be nil or false so avoid it altogether for returning booleans or values which may be nil.
+
+
+Spacing
+Use a space after --.
+--bad
+-- good
+Always put a space after commas and between operators and assignment signs:
+-- bad
+local x = y*9
+local numbers={1,2,3}
+numbers={1 , 2 , 3}
+numbers={1 ,2 ,3}
+local strings = { "hello"
+                , "Lua"
+                , "world"
+                }
+dog.set( "attr",{
+  age="1 year",
+  breed="Bernese Mountain Dog"
+})
+
+-- good
+local x = y * 9
+local numbers = {1, 2, 3}
+local strings = {
+   "hello",
+   "Lua",
+   "world",
+}
+dog.set("attr", {
+   age = "1 year",
+   breed = "Bernese Mountain Dog",
+})
+Indent tables and functions according to the start of the line, not the construct:
+-- bad
+local my_table = {
+                    "hello",
+                    "world",
+                 }
+using_a_callback(x, function(...)
+                       print("hello")
+                    end)
+
+-- good
+local my_table = {
+   "hello",
+   "world",
+}
+using_a_callback(x, function(...)
+   print("hello")
+end)
+Rationale: This keep indentation levels aligned at predictable places. You don't need to realign the entire block if something in the first line changes (such as replacing x with xy in the using_a_callback example above).
+
+The concatenation operator gets a pass for avoiding spaces:
+-- okay
+local message = "Hello, "..user.."! This is your day # "..day.." in our platform!"
+Rationale: Being at the baseline, the dots already provide some visual spacing.
+
+No spaces after the name of a function in a declaration or in its arguments:
+-- bad
+local function hello ( name, language )
+   -- code
+end
+
+-- good
+local function hello(name, language)
+   -- code
+end
+Add blank lines between functions:
+-- bad
+local function foo()
+   -- code
+end
+local function bar()
+   -- code
+end
+
+-- good
+local function foo()
+   -- code
+end
+
+local function bar()
+   -- code
+end
+Avoid aligning variable declarations:
+-- bad
+local a               = 1
+local long_identifier = 2
+
+-- good
+local a = 1
+local long_identifier = 2
+Rationale: This produces extra diffs which add noise to git blame.
+
+Alignment is occasionally useful when logical correspondence is to be highlighted:
+-- okay
+sys_command(form, UI_FORM_UPDATE_NODE, "a",      FORM_NODE_HIDDEN,  false)
+sys_command(form, UI_FORM_UPDATE_NODE, "sample", FORM_NODE_VISIBLE, false)
+
+
+OOP
+Create classes like this:
+--- @module myproject.myclass
+local myclass = {}
+
+-- class table
+local MyClass = {}
+
+function MyClass:some_method()
+   -- code
+end
+
+function MyClass:another_one()
+   self:some_method()
+   -- more code
+end
+
+function myclass.new()
+   local self = {}
+   setmetatable(self, { __index = MyClass })
+   return self
+end
+
+return myclass
+The class table and the class metatable should both be local. If containing metamethods, the metatable may be declared as a top-level local, named MyClass_mt.
+Rationale: It’s easy to see in the code above that the functions with MyClass in their signature are methods. A deeper discussion of the design rationale for this is found here.
+
+Use the method notation when invoking methods:
+-- bad 
+my_object.my_method(my_object)
+-- good
+my_object:my_method()
+Rationale: This makes it explicit that the intent is to use the function as an OOP method.
+
+Do not rely on the __gc metamethod to release resources other than memory. If your object manage resources such as files, add a close method to their APIs and do not auto-close via __gc. Auto-closing via __gc would entice users of your module to not close resources as soon as possible. (Note that the standard io library does not follow this recommendation, and users often forget that not closing files immediately can lead to "too many open files" errors when the program runs for a while.)
+Rationale: The garbage collector performs automatic memory management, dealing with memory only. There is no guarantees as to when the garbage collector will be invoked, and memory pressure does not correlate to pressure on other resources.
+
+
+
+
