@@ -6,11 +6,12 @@ local json = require("src.core.utils.json")
 local shared_data = require("src.core.game.shared_data")
 local manager_system = require("src.core.managers.manager_system")
 
--- Save file path
+-- Save file path - using an identity folder helps with Windows exe builds
 local SAVE_FILE = "save_data.json"
+local IDENTITY = "CapitalClimb"  -- Game identity for save directory
 
 -- Debug mode flag (set to true for verbose output)
-local DEBUG_MODE = false
+local DEBUG_MODE = false  -- Debug mode disabled for production
 
 -- Print debug messages
 local function debug_print(msg)
@@ -19,8 +20,18 @@ local function debug_print(msg)
     end
 end
 
+-- Setup save directory
+local function init_save_system()
+    -- Set identity for save files - important for Windows exe builds
+    love.filesystem.setIdentity(IDENTITY)
+    debug_print("Save directory: " .. love.filesystem.getSaveDirectory())
+end
+
 -- Save game data to file
 function save_manager.save()
+    -- Make sure save system is initialized
+    init_save_system()
+    
     -- Get upgrades from manager
     local all_upgrades = manager_system.upgrades.get_all_upgrades()
     local upgrades_data = {}
@@ -72,11 +83,15 @@ function save_manager.save()
     end
     
     debug_print("Game saved successfully to " .. love.filesystem.getSaveDirectory() .. "/" .. SAVE_FILE)
+    debug_print("File exists: " .. tostring(love.filesystem.getInfo(SAVE_FILE) ~= nil))
     return true
 end
 
 -- Load game data from file
 function save_manager.load()
+    -- Make sure save system is initialized
+    init_save_system()
+    
     if not love.filesystem.getInfo(SAVE_FILE) then
         debug_print("No save file found at " .. love.filesystem.getSaveDirectory() .. "/" .. SAVE_FILE)
         return false
@@ -131,43 +146,32 @@ function save_manager.load()
     -- Restore display settings
     if data.display_settings then
         debug_print("Restoring display settings")
+        debug_print("Width: " .. tostring(data.display_settings.width))
+        debug_print("Height: " .. tostring(data.display_settings.height))
+        debug_print("Fullscreen: " .. tostring(data.display_settings.fullscreen))
         shared_data.set_display_settings(data.display_settings)
     else
         debug_print("No display settings found")
     end
     
-    -- Initialize the manager system (which will load from the shared data)
-    if manager_system then
-        manager_system.init()
-        
-        -- After manager system is initialized, we can update the upgrade levels
-        if data.upgrades then
-            debug_print("Restoring upgrades")
-            local all_upgrades = manager_system.upgrades.get_all_upgrades()
-            
-            for _, upgrade in ipairs(all_upgrades) do
-                if data.upgrades[upgrade.id] then
-                    upgrade.level = data.upgrades[upgrade.id]
-                    debug_print("  - " .. upgrade.id .. ": " .. tostring(upgrade.level))
-                end
-            end
-            
-            -- Recalculate upgrade effects
-            manager_system.upgrades.recalculate_all_effects()
-        else
-            debug_print("No upgrades data found")
-        end
-        
-        -- Restore stats if available
-        if data.stats then
-            debug_print("Restoring stats")
-            shared_data.set_stats(data.stats)
-        else
-            debug_print("No stats data found")
-        end
+    -- Restore stats if available
+    if data.stats then
+        debug_print("Restoring stats")
+        shared_data.set_stats(data.stats)
     else
-        debug_print("Manager system not available for initialization")
+        debug_print("No stats data found")
     end
+    
+    -- Restore upgrade levels
+    if data.upgrades then
+        debug_print("Restoring upgrades data to shared_data")
+        shared_data.set_upgrades(data.upgrades)
+    else
+        debug_print("No upgrades data found")
+    end
+    
+    -- Initialize the manager system (which will load from the shared data)
+    -- This is now handled in game.lua after the display settings are applied
     
     debug_print("Game loaded successfully")
     return true

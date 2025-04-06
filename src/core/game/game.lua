@@ -33,10 +33,44 @@ function game.init()
             current_tab = "click_tab"
             
             -- Try to load saved game data
-            save_manager.load()
+            local loaded_save = save_manager.load()
             
-            -- Initialize manager system first
+            -- Apply display settings from loaded data
+            local display_settings = shared_data.get_display_settings()
+            if display_settings then
+                love.window.setMode(
+                    display_settings.width or 1280, 
+                    display_settings.height or 720, 
+                    {
+                        fullscreen = display_settings.fullscreen or false,
+                        resizable = true,
+                        vsync = true
+                    }
+                )
+            end
+            
+            -- Initialize manager system after display settings are applied
             manager_system.init()
+            
+            -- If save was loaded, restore upgrade levels
+            if loaded_save then
+                -- Get saved upgrades from shared data
+                local saved_upgrades = shared_data.get_upgrades()
+                if saved_upgrades and next(saved_upgrades) then
+                    -- Get all upgrades from manager
+                    local all_upgrades = manager_system.upgrades.get_all_upgrades()
+                    
+                    -- Restore each upgrade level
+                    for _, upgrade in ipairs(all_upgrades) do
+                        if saved_upgrades[upgrade.id] then
+                            upgrade.level = saved_upgrades[upgrade.id]
+                        end
+                    end
+                    
+                    -- Recalculate all effects
+                    manager_system.upgrades.recalculate_all_effects()
+                end
+            end
             
             -- Initialize all tabs once
             for tab_id, tab in pairs(tabs) do

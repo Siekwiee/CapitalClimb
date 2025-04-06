@@ -12,11 +12,34 @@ local total_businesses_purchased = 0
 
 -- Initialize the stats manager
 function stats_manager.init()
-    -- Reset or initialize stats
-    game_time = 0
-    
     -- Set initial values from shared data
     total_clicks = shared_data.get_clicks()
+    
+    -- Load saved stats if available
+    local saved_stats = shared_data.get_stats()
+    if saved_stats then
+        -- Load saved play time
+        if saved_stats.play_time then
+            game_time = saved_stats.play_time
+        end
+        
+        -- Load saved income earned
+        if saved_stats.total_income then
+            total_income_earned = saved_stats.total_income
+        end
+        
+        -- Total clicks is already loaded from shared_data.get_clicks()
+        
+        -- Load saved businesses purchased
+        if saved_stats.total_businesses then
+            total_businesses_purchased = saved_stats.total_businesses
+        end
+    else
+        -- Reset or initialize stats
+        game_time = 0
+        total_income_earned = 0
+        total_businesses_purchased = 0
+    end
 end
 
 -- Update function to track time
