@@ -7,6 +7,7 @@ local shared_data = require("src.core.game.shared_data")
 local button = require("src.ui.modules.button")
 local visualization = require("src.ui.modules.visualization")
 local manager_system = require("src.core.managers.manager_system")
+local slot_machine = require("src.tabs.click_tab.slot_machine")
 
 -- Tab variables
 local click_button = nil
@@ -44,6 +45,9 @@ function click_tab.init()
         
         table.insert(upgrade_buttons, {button = upgrade_button, upgrade = upgrade})
     end
+    
+    -- Initialize slot machine
+    slot_machine.init()
     
     -- Initial alignment of buttons with their panels
     click_tab.update(0)
@@ -101,6 +105,9 @@ function click_tab.update(dt)
         -- Update button state
         btn_data.button:update(dt, mx, my, mouse_pressed)
     end
+    
+    -- Update slot machine
+    slot_machine.update(dt)
 end
 
 -- Draw function
@@ -160,6 +167,9 @@ function click_tab.draw()
         btn_data.button:draw()
     end
     
+    -- Draw slot machine
+    slot_machine.draw()
+    
     -- Draw auto-click rate info if applicable
     local auto_click_rate = manager_system.income.get_auto_click_rate()
     if auto_click_rate > 0 then
@@ -196,6 +206,11 @@ function click_tab.mousepressed(x, y, button_num)
             if btn_data.button:mouse_pressed(x, y, button_num) then
                 return nil
             end
+        end
+        
+        -- Check slot machine buttons
+        if slot_machine.mousepressed(x, y, button_num) then
+            return nil
         end
     end
     
