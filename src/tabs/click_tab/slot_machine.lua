@@ -128,7 +128,7 @@ function slot_machine.init()
     -- Create spin button
     spin_button = button.new(
         window_width / 2 - 50, button_y, 100, 50,
-        "SPIN",
+        "",
         "accent"
     )
     
@@ -138,7 +138,7 @@ function slot_machine.init()
     
     -- Create bet adjustment buttons
     bet_decrease_button = button.new(
-        window_width / 2 - 140, button_y, 40, 50,
+        window_width / 2 - 110, button_y, 40, 50,
         "-",
         "secondary"
     )
@@ -151,7 +151,7 @@ function slot_machine.init()
     end)
     
     bet_increase_button = button.new(
-        window_width / 2 + 100, button_y, 40, 50,
+        window_width / 2 + 70, button_y, 40, 50,
         "+",
         "secondary"
     )
@@ -223,18 +223,28 @@ function slot_machine.update(dt)
     local window_width = love.graphics.getWidth()
     local window_height = love.graphics.getHeight()
     
-    -- Calculate button positions based on screen size
-    local button_y = 450
+    -- Calculate responsive panel size for positioning
+    local panel_height = math.min(300, window_height - 350)
+    local panel_y = 260
+    
+    -- Make sure panel fits on smaller screens
     if window_height < 600 then
-        button_y = 380
+        panel_y = 230
+        panel_height = math.min(panel_height, 220)
+    end
+    
+    -- Calculate button positions based on screen size
+    local button_y = math.min(window_height - 150, panel_y + panel_height + 50)
+    if window_height < 600 then
+        button_y = math.min(window_height - 120, panel_y + panel_height + 40)
     end
     
     -- Update slot machine positions
     spin_button.x = window_width / 2 - 50
     spin_button.y = button_y
-    bet_decrease_button.x = window_width / 2 - 140
+    bet_decrease_button.x = window_width / 2 - 110
     bet_decrease_button.y = button_y
-    bet_increase_button.x = window_width / 2 + 100
+    bet_increase_button.x = window_width / 2 + 70
     bet_increase_button.y = button_y
     
     -- Update button states
@@ -350,11 +360,16 @@ function slot_machine.draw()
             if symbol_index <= 0 then symbol_index = #reels[i].symbols + symbol_index end
             
             local symbol = reels[i].symbols[symbol_index]
+            
+            -- Calculate symbol position with bounds checking
             local symbol_y = start_y + reel_height/2 + j * (reel_height/3) - symbol_size/2
             
             -- Calculate fractional part for smooth animation
             local frac = pos - math.floor(pos)
             symbol_y = symbol_y - frac * (reel_height/3)
+            
+            -- Ensure symbols stay within reel bounds
+            symbol_y = math.max(start_y, math.min(start_y + reel_height - symbol_size, symbol_y))
             
             -- Draw the symbol image
             love.graphics.setColor(1, 1, 1)
@@ -376,8 +391,14 @@ function slot_machine.draw()
     
     -- Draw bet amount
     love.graphics.setColor(visualization.colors.text)
-    local bet_text_y = spin_button.y - 20
-    love.graphics.print("BET: $" .. bet_amount, window_width / 2 - 30, bet_text_y)
+    -- Center the bet text properly on the button  
+    local bet_text = "SPIN: $" .. bet_amount
+    local font = love.graphics.getFont()
+    local text_width = font:getWidth(bet_text)
+    local text_height = font:getHeight()
+    local bet_text_x = spin_button.x + (spin_button.width / 2) - (text_width / 2)
+    local bet_text_y = spin_button.y + (spin_button.height / 2) - (text_height / 2)
+    love.graphics.print(bet_text, bet_text_x, bet_text_y)
     
     -- Draw win information
     if spin_result and spin_win_amount > 0 then
@@ -388,7 +409,7 @@ function slot_machine.draw()
             love.graphics.setColor(1, 0.5, 0)
         end
         
-        love.graphics.print("WIN! $" .. spin_win_amount, window_width / 2 - 60, spin_button.y + 70, 0, 1.5, 1.5)
+        love.graphics.print("WIN! $" .. spin_win_amount, window_width / 2 - 60, spin_button.y - 40, 0, 1.5, 1.5)
     end
     
     -- Draw slot machine payout info if there's room
