@@ -1,6 +1,6 @@
 -- slot_machine.lua
 -- Slot machine mini-game module
-
+local love = require("love")
 local button = require("src.ui.modules.button")
 local visualization = require("src.ui.modules.visualization")
 local shared_data = require("src.core.game.shared_data")
