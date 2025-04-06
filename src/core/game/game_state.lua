@@ -65,4 +65,10 @@ function game_state.mousepressed(x, y, button)
     end
 end
 
+function game_state.wheelmoved(x, y)
+    if current_state and states[current_state].wheelmoved then
+        states[current_state].wheelmoved(x, y)
+    end
+end
+
 return game_state

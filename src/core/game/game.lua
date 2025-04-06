@@ -172,6 +172,12 @@ function game.init()
                 end
             end
         end,
+        wheelmoved = function(x, y)
+            -- Send wheelmoved to current tab
+            if tabs[current_tab] and tabs[current_tab].wheelmoved then
+                tabs[current_tab].wheelmoved(x, y)
+            end
+        end,
         exit = function()
             -- Save game when exiting
             save_manager.save()
@@ -217,7 +223,7 @@ function game.init()
             
             -- Draw version info at the bottom
             love.graphics.setColor(1, 1, 1, 0.5)
-            local version_text = "Version 0.1"
+            local version_text = "Version 0.3"
             love.graphics.print(version_text, 10, height - 30)
         end,
         keypressed = function(key)
@@ -263,6 +269,12 @@ end
 
 function game.mousepressed(x, y, button)
     game_state.mousepressed(x, y, button)
+end
+
+function game.wheelmoved(x, y)
+    if game_state.wheelmoved then
+        game_state.wheelmoved(x, y)
+    end
 end
 
 function game.quit()

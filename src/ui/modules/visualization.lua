@@ -22,6 +22,7 @@ visualization.colors = {
     
     -- UI colors
     background = {0.15, 0.15, 0.18, 1.0},  -- Dark background
+    background_light = {0.25, 0.25, 0.3, 1.0}, -- Lighter background for UI elements
     panel = {0.2, 0.2, 0.25, 1.0},         -- Panel background
     text = {1.0, 1.0, 1.0, 1.0},           -- White text
     text_secondary = {0.8, 0.8, 0.85, 1.0}, -- Light gray text
@@ -98,6 +99,19 @@ visualization.button_styles = {
         roundness = 4,
         border_width = 0,
         shadow_offset = 0
+    },
+    
+    -- Disabled button style
+    disabled = {
+        normal = visualization.colors.disabled,
+        hover = visualization.colors.disabled,
+        pressed = visualization.colors.disabled,
+        disabled = visualization.colors.disabled,
+        text = {0.7, 0.7, 0.7, 1.0},
+        roundness = 8,
+        border_width = 1,
+        border_color = {0.3, 0.3, 0.3, 0.5},
+        shadow_offset = 1
     }
 }
 

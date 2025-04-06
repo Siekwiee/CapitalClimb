@@ -68,9 +68,14 @@ end
 
 -- Draw the button
 function Button:draw()
+    -- Ensure style exists, if not use default primary style
+    if not self.style then
+        self.style = visualization.button_styles.primary or {}
+    end
+    
     -- Get style colors based on state
-    local color = self.style[self.state] or self.style.normal
-    local text_color = self.style.text or visualization.colors.text
+    local color = (self.style[self.state] or self.style.normal) or {0.5, 0.5, 0.5, 1.0}
+    local text_color = self.style.text or visualization.colors.text or {1, 1, 1, 1}
     
     -- Calculate scaled dimensions and position
     local w = self.width * self.scale
@@ -78,7 +83,7 @@ function Button:draw()
     local x = self.x + (self.width - w) / 2
     local y = self.y + (self.height - h) / 2
     
-    -- Get style properties
+    -- Get style properties with safe defaults
     local roundness = self.style.roundness or 0
     local shadow_offset = self.style.shadow_offset or 0
     local border_width = self.style.border_width or 0

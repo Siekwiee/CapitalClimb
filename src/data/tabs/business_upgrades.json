@@ -1,0 +1,184 @@
+[
+    {
+        "id": "lemonade_better_ingredients",
+        "name": "Better Ingredients",
+        "description": "Higher quality ingredients improve Lemonade Stand income by 20%",
+        "cost": 100,
+        "business_index": 1,
+        "effect": {
+            "type": "income_boost",
+            "value": 0.2
+        },
+        "required_businesses": 1
+    },
+    {
+        "id": "coffee_premium_beans",
+        "name": "Premium Coffee Beans",
+        "description": "Premium beans increase Coffee Shop income by 25%",
+        "cost": 400,
+        "business_index": 2,
+        "effect": {
+            "type": "income_boost",
+            "value": 0.25
+        },
+        "required_businesses": 1
+    },
+    {
+        "id": "restaurant_chef",
+        "name": "Star Chef",
+        "description": "A famous chef increases Restaurant income by 30%",
+        "cost": 2000,
+        "business_index": 3,
+        "effect": {
+            "type": "income_boost",
+            "value": 0.3
+        },
+        "required_businesses": 1
+    },
+    {
+        "id": "lemonade_organic",
+        "name": "Organic Lemon Supplier",
+        "description": "Reduces Lemonade Stand costs by 20%",
+        "cost": 250,
+        "business_index": 1,
+        "effect": {
+            "type": "cost_reduction",
+            "value": 0.2
+        },
+        "required_businesses": 5
+    },
+    {
+        "id": "coffee_bakery_synergy",
+        "name": "Coffee & Pastry Combo",
+        "description": "Creates synergy between Coffee Shops and Restaurants (+15% income)",
+        "cost": 1500,
+        "business_index": 0,
+        "effect": {
+            "type": "synergy_multiplier",
+            "businesses": [2, 3],
+            "value": 0.15
+        },
+        "required_businesses": 2
+    },
+    {
+        "id": "lemonade_automated_squeezer",
+        "name": "Automated Lemon Squeezer",
+        "description": "Automated process increases Lemonade Stand income by 40%",
+        "cost": 800,
+        "business_index": 1,
+        "effect": {
+            "type": "income_boost",
+            "value": 0.4
+        },
+        "required_businesses": 3
+    },
+    {
+        "id": "coffee_barista_training",
+        "name": "Barista Training Program",
+        "description": "Professional baristas increase Coffee Shop income by 35%",
+        "cost": 1200,
+        "business_index": 2,
+        "effect": {
+            "type": "income_boost",
+            "value": 0.35
+        },
+        "required_businesses": 3
+    },
+    {
+        "id": "restaurant_marketing",
+        "name": "Restaurant Marketing Campaign",
+        "description": "Effective marketing reduces Restaurant costs by 15%",
+        "cost": 3000,
+        "business_index": 3,
+        "effect": {
+            "type": "cost_reduction",
+            "value": 0.15
+        },
+        "required_businesses": 2
+    },
+    {
+        "id": "business_consultants",
+        "name": "Business Consultants",
+        "description": "Expert consultants provide a 10% global income boost",
+        "cost": 5000,
+        "business_index": 0,
+        "effect": {
+            "type": "global_income_multiplier",
+            "value": 0.1
+        },
+        "required_businesses": 10
+    },
+    {
+        "id": "bulk_purchasing",
+        "name": "Bulk Purchasing Program",
+        "description": "Buy in bulk to get 10% cost reduction on all businesses",
+        "cost": 2500,
+        "business_index": 0,
+        "effect": {
+            "type": "global_cost_reduction",
+            "value": 0.1
+        },
+        "required_businesses": 8
+    },
+    {
+        "id": "lemonade_franchising",
+        "name": "Lemonade Franchising",
+        "description": "Franchise your lemonade business for 50% more income",
+        "cost": 4000,
+        "business_index": 1,
+        "effect": {
+            "type": "income_boost",
+            "value": 0.5
+        },
+        "required_businesses": 10
+    },
+    {
+        "id": "coffee_specialty_drinks",
+        "name": "Specialty Coffee Drinks",
+        "description": "Premium menu increases Coffee Shop income by 60%",
+        "cost": 6000,
+        "business_index": 2,
+        "effect": {
+            "type": "income_boost",
+            "value": 0.6
+        },
+        "required_businesses": 5
+    },
+    {
+        "id": "restaurant_expansion",
+        "name": "Restaurant Expansion",
+        "description": "Larger restaurants boost income by 70%",
+        "cost": 10000,
+        "business_index": 3,
+        "effect": {
+            "type": "income_boost",
+            "value": 0.7
+        },
+        "required_businesses": 5
+    },
+    {
+        "id": "business_synergy",
+        "name": "Business Ecosystem",
+        "description": "All businesses boost each other by 20%",
+        "cost": 15000,
+        "business_index": 0,
+        "effect": {
+            "type": "synergy_multiplier",
+            "businesses": [1, 2, 3],
+            "value": 0.2
+        },
+        "required_businesses": 15
+    },
+    {
+        "id": "master_entrepreneur",
+        "name": "Master Entrepreneur",
+        "description": "Your business expertise grants 25% global income boost",
+        "cost": 50000,
+        "business_index": 0,
+        "effect": {
+            "type": "global_income_multiplier",
+            "value": 0.25
+        },
+        "required_businesses": 25
+    }
+] 

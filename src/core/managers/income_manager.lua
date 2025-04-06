@@ -17,7 +17,13 @@ function income_manager.calculate_passive_income()
     local businesses = shared_data.get_businesses()
     
     for _, business in ipairs(businesses) do
-        total = total + (business.income * business.owned)
+        -- Calculate income based on level, owned count, and multiplier
+        local business_income = business.income * business.owned
+        
+        -- Apply multiplier (from upgrades and synergies)
+        business_income = business_income * business.multiplier
+        
+        total = total + math.floor(business_income)
     end
     
     passive_income = total

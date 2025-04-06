@@ -40,6 +40,9 @@ function manager_system.update(dt)
         stats_manager.track_income(income_earned)
         last_update_time = current_time
     end
+    
+    -- Check for new milestone completions 
+    business_manager.check_milestones()
 end
 
 -- Process a click
@@ -54,6 +57,24 @@ function manager_system.buy_business(index)
     local success, result = business_manager.buy_business(index)
     if success then
         stats_manager.track_business_purchase()
+    end
+    return success, result
+end
+
+-- Purchase a business upgrade
+function manager_system.purchase_business_upgrade(upgrade_id)
+    local success, result = business_manager.purchase_upgrade(upgrade_id)
+    if success then
+        -- Could track upgrades purchased in stats if desired
+    end
+    return success, result
+end
+
+-- Upgrade a business level
+function manager_system.upgrade_business_level(index)
+    local success, result = business_manager.upgrade_business_level(index)
+    if success then
+        -- Could track level upgrades in stats if desired
     end
     return success, result
 end

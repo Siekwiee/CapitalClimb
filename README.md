@@ -64,9 +64,9 @@ CapitalClimb is a business idle game where players start from nothing and build 
 
 ### Phase 2: Business Ventures
 - [x] Implement first set of businesses
-- [ ] Business management systems
-- [ ] Upgrade paths for each business type
-- [ ] Passive income calculations
+- [x] Business management systems
+- [x] Upgrade paths for each business type
+- [x] Passive income calculations
 
 ### Phase 3: Additional Features
 - [ ] Research tab and tech tree

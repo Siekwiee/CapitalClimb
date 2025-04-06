@@ -42,6 +42,13 @@ function love.mousepressed(x, y, button)
     game.mousepressed(x, y, button)
 end
 
+-- Handle mouse wheel movement - delegates to the game module
+function love.wheelmoved(x, y)
+    if game.wheelmoved then
+        game.wheelmoved(x, y)
+    end
+end
+
 -- Handle quit event - save game before quitting
 function love.quit()
     if game.quit then
