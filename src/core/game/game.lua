@@ -24,11 +24,27 @@ local tabs = {
 -- Keep track of which tabs have been initialized
 local initialized_tabs = {}
 
+-- Font variables
+local title_font = nil
+local menu_font = nil
+local default_game_font = nil
+
 -- Initialize the game
 function game.init()
+    -- Initialize fonts first
+    default_game_font = love.graphics.newFont(14)  -- Default size for game
+    title_font = love.graphics.newFont(36)
+    menu_font = love.graphics.newFont(20)
+    
+    -- Set default font
+    love.graphics.setFont(default_game_font)
+
     -- Register main game state
     game_state.register("main_game", {
         enter = function()
+            -- Reset to default game font
+            love.graphics.setFont(default_game_font)
+            
             -- Initialize with default tab
             current_tab = "click_tab"
             
@@ -79,6 +95,9 @@ function game.init()
                     initialized_tabs[tab_id] = true
                 end
             end
+            
+            -- Initialize navbar with the current tab
+            navbar.init(current_tab)
             
             -- Update navbar with passive income
             navbar.set_passive_income(manager_system.income.get_passive_income())
@@ -161,15 +180,45 @@ function game.init()
 
     -- Register title screen
     game_state.register("title", {
+        enter = function()
+            -- Set title screen font
+            love.graphics.setFont(title_font)
+        end,
         draw = function()
-            love.graphics.setColor(1, 1, 1)
-            love.graphics.print("Capital Climb", 300, 200)
-            love.graphics.print("Press Enter to start", 270, 250)
+            -- Get window dimensions for centered positioning
+            local width, height = love.graphics.getDimensions()
+            
+            -- Draw a simple gradient background
+            love.graphics.setColor(0.1, 0.2, 0.3, 1)
+            love.graphics.rectangle("fill", 0, 0, width, height)
+            
+            -- Draw title with larger font
+            love.graphics.setFont(title_font)
+            love.graphics.setColor(1, 0.8, 0.2)  -- Gold color for title
+            
+            local title_text = "Capital Climb"
+            local title_width = title_font:getWidth(title_text)
+            love.graphics.print(title_text, (width - title_width) / 2, height / 3)
+            
+            -- Draw menu options
+            love.graphics.setFont(menu_font)
+            love.graphics.setColor(1, 1, 1, 0.9)
+            
+            local start_text = "Press Enter to start"
+            local start_width = menu_font:getWidth(start_text)
+            love.graphics.print(start_text, (width - start_width) / 2, height / 2)
             
             -- Show continue option if save exists
             if save_manager.has_save() then
-                love.graphics.print("Press L to load saved game", 260, 280)
+                local load_text = "Press L to load saved game"
+                local load_width = menu_font:getWidth(load_text)
+                love.graphics.print(load_text, (width - load_width) / 2, height / 2 + 40)
             end
+            
+            -- Draw version info at the bottom
+            love.graphics.setColor(1, 1, 1, 0.5)
+            local version_text = "Version 0.1"
+            love.graphics.print(version_text, 10, height - 30)
         end,
         keypressed = function(key)
             if key == "return" or key == "space" then
@@ -184,6 +233,9 @@ function game.init()
             if button == 1 then
                 game_state.change("main_game")
             end
+        end,
+        exit = function()
+            -- Clean up is not needed since we keep fonts for potential reuse
         end
     })
 
@@ -216,7 +268,7 @@ end
 function game.quit()
     -- Save game when exiting
     if game_state.get_current() == "main_game" then
-        save_manager.save()
+        --save_manager.save()
     end
 end
 

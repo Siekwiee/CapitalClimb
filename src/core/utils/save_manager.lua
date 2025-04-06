@@ -177,6 +177,18 @@ function save_manager.load()
     return true
 end
 
+-- wipe save function
+function save_manager.wipeSave()
+    if love.filesystem.getInfo(SAVE_FILE) then
+        love.filesystem.remove(SAVE_FILE)
+        debug_print("Save file wiped successfully")
+        return true
+    else
+        debug_print("No save file to wipe")
+        return false
+    end
+end
+
 -- Auto-save feature
 local autosave_timer = 0
 local AUTOSAVE_INTERVAL = 60 -- 60 seconds

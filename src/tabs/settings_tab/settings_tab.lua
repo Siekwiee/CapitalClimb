@@ -22,6 +22,7 @@ local resolution_buttons = {}
 local apply_button = nil
 local save_button = nil
 local load_button = nil
+local delete_button = nil
 local save_message = ""
 local save_message_timer = 0
 
@@ -131,6 +132,23 @@ function settings_tab.init()
             save_message_timer = 3
         end
     end)
+
+    -- Create delete save button
+    delete_button = button.new(
+        love.graphics.getWidth() - 300, 260, 200, 50, 
+        "Delete Save Data",
+        "warning"
+    )
+
+    delete_button:set_on_click(function()
+        if save_manager.wipeSave() then
+            save_message = "Save data deleted successfully!"
+            save_message_timer = 3
+        else
+            save_message = "No save data to delete."
+            save_message_timer = 3
+        end
+    end)
 end
 
 -- Select a resolution
@@ -198,6 +216,7 @@ function settings_tab.update(dt)
     local window_width = love.graphics.getWidth()
     save_button.x = window_width - 300
     load_button.x = window_width - 300
+    delete_button.x = window_width - 300
     
     -- Update button states
     local mx, my = love.mouse.getPosition()
@@ -207,6 +226,7 @@ function settings_tab.update(dt)
     apply_button:update(dt, mx, my, mouse_pressed)
     save_button:update(dt, mx, my, mouse_pressed)
     load_button:update(dt, mx, my, mouse_pressed)
+    delete_button:update(dt, mx, my, mouse_pressed)
     
     for _, btn_data in ipairs(resolution_buttons) do
         btn_data.button:update(dt, mx, my, mouse_pressed)
@@ -240,7 +260,7 @@ function settings_tab.draw()
     visualization.draw_panel(40, 100, 320, window_height - 140)
     
     -- Draw game data panel
-    visualization.draw_panel(window_width - 360, 100, 320, 260)
+    visualization.draw_panel(window_width - 360, 100, 320, 330)
     
     -- Draw settings title
     love.graphics.setColor(visualization.colors.text)
@@ -268,11 +288,12 @@ function settings_tab.draw()
     -- Draw save/load buttons
     save_button:draw()
     load_button:draw()
+    delete_button:draw()
     
     -- Draw save message if any
     if save_message ~= "" then
         love.graphics.setColor(visualization.colors.text_secondary)
-        love.graphics.print(save_message, window_width - 350, 260)
+        love.graphics.print(save_message, window_width - 350, 320)
     end
     
     -- Draw game statistics panel
@@ -329,6 +350,11 @@ function settings_tab.mousepressed(x, y, button_num)
         
         -- Check load button
         if load_button:mouse_pressed(x, y, button_num) then
+            return nil
+        end
+
+        -- Check delete button
+        if delete_button:mouse_pressed(x, y, button_num) then
             return nil
         end
     end

@@ -74,6 +74,19 @@ visualization.button_styles = {
         shadow_offset = 3
     },
     
+    -- Warning button style
+    warning = {
+        normal = {0.9, 0.3, 0.3, 1.0},  -- Red color
+        hover = {1.0, 0.4, 0.4, 1.0},
+        pressed = {0.8, 0.2, 0.2, 1.0},
+        disabled = visualization.colors.disabled,
+        text = visualization.colors.text,
+        roundness = 8,
+        border_width = 2,
+        border_color = {1, 1, 1, 0.1},
+        shadow_offset = 3
+    },
+    
     -- Text button style (no background)
     text_only = {
         normal = {0, 0, 0, 0},  -- Transparent

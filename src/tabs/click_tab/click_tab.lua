@@ -33,7 +33,7 @@ function click_tab.init()
     for i, upgrade in ipairs(all_upgrades) do
         local y_pos = 250 + (i-1) * 80
         local upgrade_button = button.new(
-            love.graphics.getWidth() - 200, y_pos, 160, 50,
+            love.graphics.getWidth() - 170, y_pos, 120, 50,
             "Buy: $" .. upgrade:get_cost(),
             "secondary"  -- Using the secondary style from visualization
         )
@@ -44,6 +44,9 @@ function click_tab.init()
         
         table.insert(upgrade_buttons, {button = upgrade_button, upgrade = upgrade})
     end
+    
+    -- Initial alignment of buttons with their panels
+    click_tab.update(0)
 end
 
 -- Purchase an upgrade
@@ -69,8 +72,17 @@ function click_tab.update(dt)
     local window_width = love.graphics.getWidth()
     click_button.x = window_width / 2 - 100
     
+    -- Update positions of upgrade buttons
     for i, btn_data in ipairs(upgrade_buttons) do
-        btn_data.button.x = window_width - 200
+        local y_pos = 250 + (i-1) * 80
+        local panel_height = 70
+        local button_height = 50
+        
+        -- Center the button vertically in the panel
+        local centered_y = y_pos - 20 + (panel_height - button_height) / 2
+        
+        btn_data.button.x = window_width - 170
+        btn_data.button.y = centered_y
     end
     
     -- Update button states
@@ -136,6 +148,9 @@ function click_tab.draw()
         -- Draw upgrade info
         love.graphics.setColor(visualization.colors.text)
         love.graphics.print(upgrade.name, window_width - 440, y_pos - 10)
+        
+        -- Calculate max width for text to avoid button overlap
+        local max_text_width = 260
         
         love.graphics.setColor(visualization.colors.text_secondary)
         love.graphics.print(upgrade.description, window_width - 440, y_pos + 10)
