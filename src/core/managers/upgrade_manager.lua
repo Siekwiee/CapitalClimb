@@ -1,10 +1,12 @@
--- upgrades.lua
--- Defines upgrades for the clicker functionality
+-- upgrade_manager.lua
+-- Manages all upgrades across different tabs
 
-local upgrades = {}
+local upgrade_manager = {}
+local shared_data = require("src.core.game.shared_data")
+local income_manager = require("src.core.managers.income_manager")
 
--- List of available upgrades
-upgrades.items = {
+-- List of all available upgrades
+local upgrades = {
     {
         id = "finger_strength",
         name = "Finger Strength",
@@ -67,45 +69,30 @@ upgrades.items = {
     }
 }
 
--- Calculate current money per click based on upgrades
-function upgrades.calculate_money_per_click()
-    -- Start with base value of 1
-    local money_per_click = 1
-    
-    -- Add finger strength upgrade
-    for _, upgrade in ipairs(upgrades.items) do
-        if upgrade.id == "finger_strength" then
-            money_per_click = money_per_click + upgrade:get_effect()
-        end
-    end
-    
-    return money_per_click
+-- Initialize the upgrade manager (call once at game start)
+function upgrade_manager.init()
+    -- Apply upgrade effects
+    upgrade_manager.recalculate_all_effects()
 end
 
--- Check if a double click should happen based on upgrades
-function upgrades.should_double_click()
-    for _, upgrade in ipairs(upgrades.items) do
-        if upgrade.id == "double_click" then
-            -- Random chance based on upgrade level
-            return math.random() < upgrade:get_effect()
-        end
-    end
-    return false
+-- Get all upgrades
+function upgrade_manager.get_all_upgrades()
+    return upgrades
 end
 
--- Get auto-click rate (clicks per second)
-function upgrades.get_auto_click_rate()
-    for _, upgrade in ipairs(upgrades.items) do
-        if upgrade.id == "auto_clicker" then
-            return upgrade:get_effect()
+-- Find an upgrade by ID
+function upgrade_manager.get_upgrade(id)
+    for _, upgrade in ipairs(upgrades) do
+        if upgrade.id == id then
+            return upgrade
         end
     end
-    return 0
+    return nil
 end
 
 -- Upgrade an item to the next level
-function upgrades.upgrade_item(id, money)
-    for _, upgrade in ipairs(upgrades.items) do
+function upgrade_manager.upgrade_item(id, money)
+    for _, upgrade in ipairs(upgrades) do
         if upgrade.id == id then
             -- Check if max level reached
             if upgrade.level >= upgrade.max_level then
@@ -120,10 +107,35 @@ function upgrades.upgrade_item(id, money)
             
             -- Perform upgrade
             upgrade.level = upgrade.level + 1
+            
+            -- Recalculate effects
+            upgrade_manager.recalculate_all_effects()
+            
             return true, cost  -- Return success and cost
         end
     end
     return false, "Upgrade not found"
 end
 
-return upgrades 
+-- Recalculate all upgrade effects
+function upgrade_manager.recalculate_all_effects()
+    -- Reset to base values
+    income_manager.set_money_per_click(1)
+    income_manager.set_double_click_chance(0)
+    income_manager.set_auto_click_rate(0)
+    
+    -- Apply all upgrade effects
+    for _, upgrade in ipairs(upgrades) do
+        local effect = upgrade:get_effect()
+        
+        if upgrade.id == "finger_strength" then
+            income_manager.set_money_per_click(1 + effect)
+        elseif upgrade.id == "double_click" then
+            income_manager.set_double_click_chance(effect)
+        elseif upgrade.id == "auto_clicker" then
+            income_manager.set_auto_click_rate(effect)
+        end
+    end
+end
+
+return upgrade_manager 

@@ -5,8 +5,10 @@ local button = {}
 local Button = {}
 Button.__index = Button
 
+local visualization = require("src.ui.modules.visualization")
+
 -- Create a new button
-function button.new(x, y, width, height, text, colors)
+function button.new(x, y, width, height, text, style_name)
     local self = {}
     setmetatable(self, Button)
     
@@ -17,24 +19,17 @@ function button.new(x, y, width, height, text, colors)
     self.text = text
     self.enabled = true
     
-    -- Default colors if not specified
-    self.colors = colors or {
-        normal = {0.3, 0.6, 0.9, 1.0},
-        hover = {0.4, 0.7, 1.0, 1.0},
-        pressed = {0.2, 0.5, 0.8, 1.0},
-        disabled = {0.5, 0.5, 0.5, 1.0},
-        text = {1, 1, 1, 1}
-    }
-    
-    -- Ensure all color states exist to avoid nil errors
-    if not self.colors.normal then self.colors.normal = {0.3, 0.6, 0.9, 1.0} end
-    if not self.colors.hover then self.colors.hover = {0.4, 0.7, 1.0, 1.0} end
-    if not self.colors.pressed then self.colors.pressed = {0.2, 0.5, 0.8, 1.0} end
-    if not self.colors.disabled then self.colors.disabled = {0.5, 0.5, 0.5, 1.0} end
-    if not self.colors.text then self.colors.text = {1, 1, 1, 1} end
+    -- Set style based on provided style_name or default to primary
+    local style_name = style_name or "primary"
+    self.style = visualization.button_styles[style_name] or visualization.button_styles.primary
     
     self.state = "normal"  -- normal, hover, pressed
     self.on_click = nil
+    
+    -- Animation properties
+    self.scale = 1.0
+    self.target_scale = 1.0
+    self.animation_speed = 10  -- Higher value = faster animation
     
     return self
 end
@@ -46,50 +41,96 @@ function Button:is_inside(x, y)
 end
 
 -- Update button state based on mouse position
-function Button:update(mx, my, mouse_pressed)
+function Button:update(dt, mx, my, mouse_pressed)
+    dt = dt or love.timer.getDelta()
+    
     if not self.enabled then
         self.state = "disabled"
-        return
-    end
-    
-    if self:is_inside(mx, my) then
+        self.target_scale = 1.0
+    elseif self:is_inside(mx, my) then
         if mouse_pressed then
             self.state = "pressed"
+            self.target_scale = 0.95  -- Slightly smaller when pressed
         else
             self.state = "hover"
+            self.target_scale = 1.05  -- Slightly larger when hovered
         end
     else
         self.state = "normal"
+        self.target_scale = 1.0
+    end
+    
+    -- Animate scale
+    if self.scale ~= self.target_scale then
+        self.scale = self.scale + (self.target_scale - self.scale) * dt * self.animation_speed
     end
 end
 
 -- Draw the button
 function Button:draw()
-    -- Set color based on state, with fallback to prevent nil
-    local color = self.colors[self.state] or self.colors.normal
+    -- Get style colors based on state
+    local color = self.style[self.state] or self.style.normal
+    local text_color = self.style.text or visualization.colors.text
     
-    -- Ensure color has all components
-    local r = color[1] or 0.5
-    local g = color[2] or 0.5
-    local b = color[3] or 0.5
-    local a = color[4] or 1.0
+    -- Calculate scaled dimensions and position
+    local w = self.width * self.scale
+    local h = self.height * self.scale
+    local x = self.x + (self.width - w) / 2
+    local y = self.y + (self.height - h) / 2
     
-    love.graphics.setColor(r, g, b, a)
+    -- Get style properties
+    local roundness = self.style.roundness or 0
+    local shadow_offset = self.style.shadow_offset or 0
+    local border_width = self.style.border_width or 0
+    local border_color = self.style.border_color or {1, 1, 1, 0.1}
+    
+    -- Draw shadow if specified
+    if shadow_offset > 0 then
+        love.graphics.setColor(0, 0, 0, 0.3)
+        visualization.draw_rounded_rect(
+            x + shadow_offset, 
+            y + shadow_offset, 
+            w, h, roundness * self.scale
+        )
+    end
     
     -- Draw button background
-    love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
+    love.graphics.setColor(color)
+    visualization.draw_rounded_rect(x, y, w, h, roundness * self.scale)
+    
+    -- Draw border if specified
+    if border_width > 0 then
+        love.graphics.setColor(border_color)
+        love.graphics.setLineWidth(border_width)
+        
+        if roundness > 0 then
+            local r = roundness * self.scale
+            -- Draw rounded border
+            love.graphics.arc("line", x + r, y + r, r, math.pi, math.pi * 1.5)
+            love.graphics.arc("line", x + w - r, y + r, r, math.pi * 1.5, math.pi * 2)
+            love.graphics.arc("line", x + w - r, y + h - r, r, 0, math.pi * 0.5)
+            love.graphics.arc("line", x + r, y + h - r, r, math.pi * 0.5, math.pi)
+            
+            love.graphics.line(x + r, y, x + w - r, y)
+            love.graphics.line(x + w, y + r, x + w, y + h - r)
+            love.graphics.line(x + w - r, y + h, x + r, y + h)
+            love.graphics.line(x, y + h - r, x, y + r)
+        else
+            -- Draw regular border
+            love.graphics.rectangle("line", x, y, w, h)
+        end
+    end
     
     -- Draw button text
-    local text_color = self.colors.text or {1, 1, 1, 1}
-    love.graphics.setColor(text_color[1] or 1, text_color[2] or 1, text_color[3] or 1, text_color[4] or 1)
+    love.graphics.setColor(text_color)
     
     local font = love.graphics.getFont()
     local text_width = font:getWidth(self.text)
     local text_height = font:getHeight()
     
     -- Center text in button
-    local text_x = self.x + (self.width - text_width) / 2
-    local text_y = self.y + (self.height - text_height) / 2
+    local text_x = x + (w - text_width) / 2
+    local text_y = y + (h - text_height) / 2
     
     love.graphics.print(self.text, text_x, text_y)
 end

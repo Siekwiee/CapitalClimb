@@ -4,112 +4,118 @@
 local business_tab = {}
 local navbar = require("src.ui.navbar")
 local shared_data = require("src.core.game.shared_data")
-local data_loader = require("src.core.utils.data_loader")
+local button = require("src.ui.modules.button")
+local visualization = require("src.ui.modules.visualization")
+local manager_system = require("src.core.managers.manager_system")
 
 -- Tab variables
-local passive_income = 0
-local last_update_time = 0
-local update_interval = 1  -- 1 second passive income tick
-
--- Load businesses from JSON
-local function load_businesses()
-    -- Try to load from JSON file
-    local loaded_businesses = data_loader.load_json("src/data/tabs/available_businesses.json")
-    
-    if loaded_businesses then
-        shared_data.set_businesses(loaded_businesses)
-    else
-        -- Fallback default businesses if file can't be loaded
-        shared_data.set_businesses({
-            {
-                name = "Lemonade Stand",
-                cost = 10,
-                income = 2,
-                owned = 0
-            },
-            {
-                name = "Coffee Shop",
-                cost = 200,
-                income = 10,
-                owned = 0
-            },
-            {
-                name = "Restaurant",
-                cost = 1000,
-                income = 80,
-                owned = 0
-            }
-        })
-    end
-    
-    -- Calculate initial passive income based on owned businesses
-    passive_income = 0
-    local businesses = shared_data.get_businesses()
-    for _, business in ipairs(businesses) do
-        passive_income = passive_income + (business.income * business.owned)
-    end
-end
+local business_buttons = {}
 
 function business_tab.init()
     navbar.init("business_tab")
-    last_update_time = love.timer.getTime()
-    load_businesses()
+    
+    -- Create business buy buttons
+    business_buttons = {}
+    local businesses = manager_system.businesses.get_businesses()
+    for i, business in ipairs(businesses) do
+        local y = 240 + (i-1) * 90
+        
+        local buy_button = button.new(
+            love.graphics.getWidth() - 200, y + 20, 120, 40,
+            "BUY",
+            "secondary"
+        )
+        
+        buy_button:set_on_click(function()
+            -- Try to buy business
+            manager_system.buy_business(i)
+        end)
+        
+        table.insert(business_buttons, {button = buy_button, business_index = i})
+    end
 end
 
 function business_tab.update(dt)
-    -- Calculate passive income
-    local current_time = love.timer.getTime()
-    if current_time - last_update_time >= update_interval then
-        shared_data.add_money(passive_income)
-        last_update_time = current_time
+    -- Update button positions on window resize
+    local window_width = love.graphics.getWidth()
+    for i, btn_data in ipairs(business_buttons) do
+        btn_data.button.x = window_width - 200
+    end
+    
+    -- Update button states
+    local mx, my = love.mouse.getPosition()
+    local mouse_pressed = love.mouse.isDown(1)
+    
+    -- Update business buy buttons
+    local businesses = manager_system.businesses.get_businesses()
+    for i, btn_data in ipairs(business_buttons) do
+        local business = businesses[btn_data.business_index]
+        -- Update button enabled state based on money
+        btn_data.button:set_enabled(shared_data.get_money() >= business.cost)
+        -- Update button state
+        btn_data.button:update(dt, mx, my, mouse_pressed)
     end
 end
 
 function business_tab.draw()
+    local window_width = love.graphics.getWidth()
+    local window_height = love.graphics.getHeight()
+    
     -- Draw the navbar
     navbar.draw()
     
     -- Draw the content area (below navbar)
-    love.graphics.setColor(0.15, 0.15, 0.15)
-    love.graphics.rectangle("fill", 0, 50, love.graphics.getWidth(), love.graphics.getHeight() - 50)
+    love.graphics.setColor(visualization.colors.background)
+    love.graphics.rectangle("fill", 0, 62, window_width, window_height - 62)
+    
+    -- Draw main panel
+    visualization.draw_panel(20, 82, window_width - 40, window_height - 102)
+    
+    -- Draw stats panel
+    visualization.draw_panel(20, 100, 220, 80)
     
     -- Draw business info
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.print("Money: $" .. shared_data.get_money(), 50, 70)
-    love.graphics.print("Passive Income: $" .. passive_income .. "/sec", 50, 100)
+    love.graphics.setColor(visualization.colors.text)
+    love.graphics.print("Money: $" .. shared_data.get_money(), 40, 110)
+    love.graphics.print("Passive Income: $" .. manager_system.income.get_passive_income() .. "/sec", 40, 140)
     
-    -- Draw business list
-    love.graphics.print("BUSINESSES", 50, 140)
+    -- Draw businesses panel
+    visualization.draw_panel(20, 190, window_width - 40, window_height - 210)
     
-    local businesses = shared_data.get_businesses()
+    -- Draw businesses header
+    love.graphics.setColor(visualization.colors.text)
+    love.graphics.print("BUSINESSES", 40, 200)
+    
+    local businesses = manager_system.businesses.get_businesses()
     for i, business in ipairs(businesses) do
-        local y = 170 + (i-1) * 80
+        local y = 240 + (i-1) * 90
+        
+        -- Create business panel
+        visualization.draw_panel(40, y, window_width - 80, 80)
         
         -- Business info
-        love.graphics.print(business.name, 50, y)
-        love.graphics.print("Cost: $" .. business.cost, 50, y + 20)
-        love.graphics.print("Income: $" .. business.income .. "/sec", 50, y + 40)
-        love.graphics.print("Owned: " .. business.owned, 250, y + 20)
+        love.graphics.setColor(visualization.colors.text)
+        love.graphics.print(business.name, 60, y + 10)
+        love.graphics.setColor(visualization.colors.text_secondary)
+        love.graphics.print("Cost: $" .. business.cost, 60, y + 30)
+        love.graphics.print("Income: $" .. business.income .. "/sec", 60, y + 50)
         
-        -- Buy button
-        if shared_data.get_money() >= business.cost then
-            love.graphics.setColor(0.2, 0.7, 0.3)
-        else
-            love.graphics.setColor(0.5, 0.5, 0.5)
+        love.graphics.setColor(visualization.colors.text)
+        love.graphics.print("Owned: " .. business.owned, window_width - 300, y + 30)
+        
+        -- Draw buy button
+        if business_buttons[i] then
+            business_buttons[i].button:draw()
         end
-        
-        love.graphics.rectangle("fill", 350, y + 10, 120, 40)
-        love.graphics.setColor(1, 1, 1)
-        love.graphics.print("BUY", 395, y + 25)
     end
 end
 
 function business_tab.keypressed(key)
-    -- Handle keypress for business tab
+    -- No specific key handling for business tab
 end
 
-function business_tab.mousepressed(x, y, button)
-    if button == 1 then
+function business_tab.mousepressed(x, y, button_num)
+    if button_num == 1 then
         -- Check navbar clicks
         local tab_id = navbar.check_click(x, y)
         if tab_id then
@@ -118,18 +124,9 @@ function business_tab.mousepressed(x, y, button)
         end
         
         -- Check buy buttons
-        local businesses = shared_data.get_businesses()
-        for i, business in ipairs(businesses) do
-            local button_y = 170 + (i-1) * 80 + 10
-            if x >= 350 and x <= 470 and y >= button_y and y <= button_y + 40 then
-                -- Try to buy business
-                if shared_data.get_money() >= business.cost then
-                    shared_data.add_money(-business.cost)
-                    business.owned = business.owned + 1
-                    shared_data.update_business(i, business)
-                    -- Update passive income
-                    passive_income = passive_income + business.income
-                end
+        for _, btn_data in ipairs(business_buttons) do
+            if btn_data.button:mouse_pressed(x, y, button_num) then
+                return nil
             end
         end
     end

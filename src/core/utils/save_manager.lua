@@ -4,7 +4,7 @@
 local save_manager = {}
 local json = require("src.core.utils.json")
 local shared_data = require("src.core.game.shared_data")
-local upgrades = require("src.tabs.click_tab.upgrades")
+local manager_system = require("src.core.managers.manager_system")
 
 -- Save file path
 local SAVE_FILE = "save_data.json"
@@ -21,25 +21,43 @@ end
 
 -- Save game data to file
 function save_manager.save()
+    -- Get upgrades from manager
+    local all_upgrades = manager_system.upgrades.get_all_upgrades()
+    local upgrades_data = {}
+    
+    -- Create upgrade data for saving
+    for _, upgrade in ipairs(all_upgrades) do
+        upgrades_data[upgrade.id] = upgrade.level
+    end
+    
+    -- Get stats from stats manager
+    local stats_data = {
+        play_time = manager_system.stats.get_play_time(),
+        total_income = manager_system.stats.get_total_income(),
+        total_clicks = manager_system.stats.get_total_clicks(),
+        total_businesses = manager_system.stats.get_total_businesses()
+    }
+    
     local data = {
         -- Core data
         money = shared_data.get_money(),
         
         -- Click tab data
         clicks = shared_data.get_clicks(),
-        upgrades = {},
+        upgrades = upgrades_data,
         
         -- Business tab data
         businesses = shared_data.get_businesses(),
         
+        -- Stats data
+        stats = stats_data,
+        
+        -- Display settings
+        display_settings = shared_data.get_display_settings(),
+        
         -- Timestamp
         timestamp = os.time()
     }
-    
-    -- Save individual upgrade levels
-    for _, upgrade in ipairs(upgrades.items) do
-        data.upgrades[upgrade.id] = upgrade.level
-    end
     
     -- Serialize to JSON and save to file
     local success, message = pcall(function()
@@ -102,25 +120,53 @@ function save_manager.load()
         debug_print("No clicks data found")
     end
     
-    -- Restore upgrade levels
-    if data.upgrades then
-        debug_print("Restoring upgrades")
-        for _, upgrade in ipairs(upgrades.items) do
-            if data.upgrades[upgrade.id] then
-                debug_print("  - " .. upgrade.id .. ": " .. tostring(data.upgrades[upgrade.id]))
-                upgrade.level = data.upgrades[upgrade.id]
-            end
-        end
-    else
-        debug_print("No upgrades data found")
-    end
-    
     -- Restore businesses
     if data.businesses then
         debug_print("Restoring businesses")
         shared_data.set_businesses(data.businesses)
     else
         debug_print("No businesses data found")
+    end
+    
+    -- Restore display settings
+    if data.display_settings then
+        debug_print("Restoring display settings")
+        shared_data.set_display_settings(data.display_settings)
+    else
+        debug_print("No display settings found")
+    end
+    
+    -- Initialize the manager system (which will load from the shared data)
+    if manager_system then
+        manager_system.init()
+        
+        -- After manager system is initialized, we can update the upgrade levels
+        if data.upgrades then
+            debug_print("Restoring upgrades")
+            local all_upgrades = manager_system.upgrades.get_all_upgrades()
+            
+            for _, upgrade in ipairs(all_upgrades) do
+                if data.upgrades[upgrade.id] then
+                    upgrade.level = data.upgrades[upgrade.id]
+                    debug_print("  - " .. upgrade.id .. ": " .. tostring(upgrade.level))
+                end
+            end
+            
+            -- Recalculate upgrade effects
+            manager_system.upgrades.recalculate_all_effects()
+        else
+            debug_print("No upgrades data found")
+        end
+        
+        -- Restore stats if available
+        if data.stats then
+            debug_print("Restoring stats")
+            shared_data.set_stats(data.stats)
+        else
+            debug_print("No stats data found")
+        end
+    else
+        debug_print("Manager system not available for initialization")
     end
     
     debug_print("Game loaded successfully")

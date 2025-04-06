@@ -7,6 +7,13 @@ local shared_data = {}
 local money = 0
 local clicks = 0
 local businesses = {}
+local upgrades = {}
+local stats = {}
+local display_settings = {
+    fullscreen = false,
+    width = 1280,
+    height = 720
+}
 
 -- Getters and setters for money
 function shared_data.get_money()
@@ -45,6 +52,43 @@ end
 
 function shared_data.update_business(index, new_business)
     businesses[index] = new_business
+end
+
+-- Getters and setters for upgrades
+function shared_data.get_upgrades()
+    return upgrades
+end
+
+function shared_data.set_upgrades(new_upgrades)
+    upgrades = new_upgrades
+end
+
+function shared_data.update_upgrade(id, new_upgrade)
+    for i, upgrade in ipairs(upgrades) do
+        if upgrade.id == id then
+            upgrades[i] = new_upgrade
+            return true
+        end
+    end
+    return false
+end
+
+-- Getters and setters for stats
+function shared_data.get_stats()
+    return stats
+end
+
+function shared_data.set_stats(new_stats)
+    stats = new_stats
+end
+
+-- Getters and setters for display settings
+function shared_data.get_display_settings()
+    return display_settings
+end
+
+function shared_data.set_display_settings(new_settings)
+    display_settings = new_settings
 end
 
 return shared_data 

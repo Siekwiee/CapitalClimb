@@ -4,6 +4,9 @@
 local game = {}
 local game_state = require("src.core.game.game_state")
 local save_manager = require("src.core.utils.save_manager")
+local navbar = require("src.ui.navbar")  -- Import navbar
+local shared_data = require("src.core.game.shared_data")
+local manager_system = require("src.core.managers.manager_system")
 
 -- Import tabs
 local click_tab = require("src.tabs.click_tab.click_tab")
@@ -18,6 +21,9 @@ local tabs = {
     settings_tab = settings_tab
 }
 
+-- Keep track of which tabs have been initialized
+local initialized_tabs = {}
+
 -- Initialize the game
 function game.init()
     -- Register main game state
@@ -25,17 +31,34 @@ function game.init()
         enter = function()
             -- Initialize with default tab
             current_tab = "click_tab"
-            -- Initialize all tabs
-            for _, tab in pairs(tabs) do
-                if tab.init then
-                    tab.init()
-                end
-            end
             
             -- Try to load saved game data
             save_manager.load()
+            
+            -- Initialize manager system first
+            manager_system.init()
+            
+            -- Initialize all tabs once
+            for tab_id, tab in pairs(tabs) do
+                if tab.init and not initialized_tabs[tab_id] then
+                    tab.init()
+                    initialized_tabs[tab_id] = true
+                end
+            end
+            
+            -- Update navbar with passive income
+            navbar.set_passive_income(manager_system.income.get_passive_income())
         end,
         update = function(dt)
+            -- Update manager system
+            manager_system.update(dt)
+            
+            -- Update navbar animations
+            navbar.update(dt)
+            
+            -- Update passive income amount in navbar
+            navbar.set_passive_income(manager_system.income.get_passive_income())
+            
             -- Update current tab
             if tabs[current_tab] and tabs[current_tab].update then
                 tabs[current_tab].update(dt)
@@ -78,9 +101,20 @@ function game.init()
                 local new_tab = tabs[current_tab].mousepressed(x, y, button)
                 if new_tab and tabs[new_tab] then
                     current_tab = new_tab
-                    -- Initialize the newly selected tab
-                    if tabs[current_tab].init then
+                    
+                    -- Only initialize if it hasn't been initialized yet
+                    if tabs[current_tab].init and not initialized_tabs[new_tab] then
                         tabs[current_tab].init()
+                        initialized_tabs[new_tab] = true
+                    end
+                    
+                    -- Just update navbar for the tab
+                    if current_tab == "click_tab" then
+                        navbar.init("click_tab")
+                    elseif current_tab == "business_tab" then
+                        navbar.init("business_tab")
+                    elseif current_tab == "settings_tab" then
+                        navbar.init("settings_tab")
                     end
                 end
             end
@@ -121,6 +155,11 @@ function game.init()
 
     -- Set initial state
     game_state.init("title")
+end
+
+-- Getter for passive income value (for API completeness)
+function game.get_passive_income()
+    return manager_system.income.get_passive_income()
 end
 
 -- Forward Love2D callbacks to the game_state manager
