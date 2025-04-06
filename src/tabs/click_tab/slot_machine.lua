@@ -31,6 +31,8 @@ local bet_index = 1
 local spin_button = nil
 local bet_decrease_button = nil
 local bet_increase_button = nil
+local auto_spin_button = nil
+local is_auto_spinning = false
 local is_spinning = false
 local spin_time = 0
 local total_spin_time = 2 -- seconds
@@ -136,6 +138,20 @@ function slot_machine.init()
         slot_machine.spin()
     end)
     
+    -- Create auto spin button
+    auto_spin_button = button.new(
+        window_width / 2 + 105, button_y, 80, 50,
+        "AUTO",
+        "secondary"
+    )
+    
+    auto_spin_button:set_on_click(function()
+        is_auto_spinning = not is_auto_spinning
+        if is_auto_spinning and not is_spinning then
+            slot_machine.spin()
+        end
+    end)
+    
     -- Create bet adjustment buttons
     bet_decrease_button = button.new(
         window_width / 2 - 110, button_y, 40, 50,
@@ -151,7 +167,7 @@ function slot_machine.init()
     end)
     
     bet_increase_button = button.new(
-        window_width / 2 + 70, button_y, 40, 50,
+        window_width / 2 + 55, button_y, 40, 50,
         "+",
         "secondary"
     )
@@ -168,6 +184,7 @@ end
 function slot_machine.spin()
     -- Check if player has enough money
     if shared_data.get_money() < bet_amount then
+        is_auto_spinning = false
         return false -- Not enough money to spin
     end
     
@@ -244,12 +261,21 @@ function slot_machine.update(dt)
     spin_button.y = button_y
     bet_decrease_button.x = window_width / 2 - 110
     bet_decrease_button.y = button_y
-    bet_increase_button.x = window_width / 2 + 70
+    bet_increase_button.x = window_width / 2 + 55
     bet_increase_button.y = button_y
+    auto_spin_button.x = window_width / 2 + 105
+    auto_spin_button.y = button_y
     
     -- Update button states
     local mx, my = love.mouse.getPosition()
     local mouse_pressed = love.mouse.isDown(1)
+    
+    -- Update auto spin button style based on state
+    if is_auto_spinning then
+        auto_spin_button.style = visualization.button_styles.accent
+    else
+        auto_spin_button.style = visualization.button_styles.secondary
+    end
     
     -- Update slot machine buttons
     spin_button:set_enabled(shared_data.get_money() >= bet_amount and not is_spinning)
@@ -258,6 +284,8 @@ function slot_machine.update(dt)
     bet_decrease_button:update(dt, mx, my, mouse_pressed)
     bet_increase_button:set_enabled(bet_index < #bet_options and not is_spinning)
     bet_increase_button:update(dt, mx, my, mouse_pressed)
+    auto_spin_button:set_enabled(shared_data.get_money() >= bet_amount)
+    auto_spin_button:update(dt, mx, my, mouse_pressed)
     
     -- Update slot machine animation
     if is_spinning then
@@ -294,6 +322,9 @@ function slot_machine.update(dt)
             is_spinning = false
             check_win()
         end
+    elseif is_auto_spinning and not is_spinning and not show_win_animation then
+        -- If auto-spinning is enabled and not currently spinning or showing win animation, start a new spin
+        slot_machine.spin()
     end
     
     -- Update win animation
@@ -388,6 +419,17 @@ function slot_machine.draw()
     spin_button:draw()
     bet_decrease_button:draw()
     bet_increase_button:draw()
+    auto_spin_button:draw()
+    
+    -- Draw auto spin button with indicator if active
+    if is_auto_spinning then
+        -- Draw a pulsing circle indicator
+        local pulse = 0.7 + math.sin(love.timer.getTime() * 5) * 0.3
+        love.graphics.setColor(0, 0.8, 0, pulse)  -- Green indicator with pulsing alpha
+        love.graphics.circle("fill", auto_spin_button.x + auto_spin_button.width - 15, auto_spin_button.y + 15, 6)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.circle("line", auto_spin_button.x + auto_spin_button.width - 15, auto_spin_button.y + 15, 6)
+    end
     
     -- Draw bet amount
     love.graphics.setColor(visualization.colors.text)
@@ -446,6 +488,10 @@ function slot_machine.mousepressed(x, y, button_num)
         end
         
         if bet_increase_button:mouse_pressed(x, y, button_num) then
+            return true
+        end
+        
+        if auto_spin_button:mouse_pressed(x, y, button_num) then
             return true
         end
     end
