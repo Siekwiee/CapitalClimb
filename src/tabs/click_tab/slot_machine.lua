@@ -399,8 +399,8 @@ function slot_machine.draw()
             local frac = pos - math.floor(pos)
             symbol_y = symbol_y - frac * (reel_height/3)
             
-            -- Ensure symbols stay within reel bounds
-            symbol_y = math.max(start_y, math.min(start_y + reel_height - symbol_size, symbol_y))
+            -- Set scissor box for this reel
+            love.graphics.setScissor(reel_x, start_y, reel_width, reel_height)
             
             -- Draw the symbol image
             love.graphics.setColor(1, 1, 1)
@@ -408,6 +408,9 @@ function slot_machine.draw()
             if image then
                 love.graphics.draw(image, reel_x + reel_width/2 - symbol_size/2, symbol_y)
             end
+            
+            -- Reset scissor box after drawing the reel
+            love.graphics.setScissor()
         end
     end
     

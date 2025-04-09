@@ -46,8 +46,8 @@ CapitalClimb is a business idle game where players start from nothing and build 
 ## Technical Details
 
 ### Built With
-- **LÖVE2D** (Love2D): A framework for making 2D games in Lua
-- **Lua**: Programming language used for game logic and mechanics
+- **LÖVE2D** (Love2D): A framework for making 2D games in Lua (See current verison in conf.lua)
+- **Lua**: Programming language used for game logic and mechanics (currenty beeing developed in version 5.3.6)
 
 ### Architecture
 - **Tab-based UI**: Bottom navigation system for game features
