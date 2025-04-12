@@ -3,7 +3,7 @@
 
 local settings_tab = {}
 local navbar = require("src.ui.navbar")
-local button = require("src.ui.modules.button")
+local button = require("src.ui.modules.button.button")
 local save_manager = require("src.core.utils.save_manager")
 local visualization = require("src.ui.modules.visualization")
 local shared_data = require("src.core.game.shared_data")

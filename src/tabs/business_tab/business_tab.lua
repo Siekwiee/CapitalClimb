@@ -4,7 +4,7 @@
 local business_tab = {}
 local navbar = require("src.ui.navbar")
 local shared_data = require("src.core.game.shared_data")
-local button = require("src.ui.modules.button")
+local button = require("src.ui.modules.button.button")
 local visualization = require("src.ui.modules.visualization")
 local manager_system = require("src.core.managers.manager_system")
 
