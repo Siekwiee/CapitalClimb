@@ -3,6 +3,8 @@
 
 local navbar = {}
 
+local data_loader = require("src.core.utils.data_loader")  -- Import the data_loader module
+
 -- Tab data
 local tabs = {
     {id = "click_tab", name = "Clicker", active = false, icon = "💰"},
@@ -87,7 +89,7 @@ function navbar.draw()
     -- Show passive income if available
     if passive_income and passive_income > 0 then
         love.graphics.setColor(colors.passive_income)
-        love.graphics.print("$" .. passive_income .. "/sec", 20, 20)
+        love.graphics.print("$" .. data_loader.format_number_to_two_decimals(passive_income) .. "/sec", 20, 20)  -- Format passive income
     end
     
     -- Tab buttons

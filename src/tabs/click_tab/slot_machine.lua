@@ -4,6 +4,7 @@ local love = require("love")
 local button = require("src.ui.modules.button.button")
 local visualization = require("src.ui.modules.visualization")
 local shared_data = require("src.core.game.shared_data")
+local data_loader = require("src.core.utils.data_loader")
 
 local slot_machine = {}
 
@@ -434,7 +435,8 @@ function slot_machine.draw()
         love.graphics.circle("line", auto_spin_button.x + auto_spin_button.width - 15, auto_spin_button.y + 15, 6)
     end
     
-    -- Draw bet amount
+    -- Draw bet text label and amount are no longer needed as they're redundant
+    -- Keep only the spin button text with original formatting
     love.graphics.setColor(visualization.colors.text)
     -- Center the bet text properly on the button  
     local bet_text = "SPIN: $" .. bet_amount
@@ -454,7 +456,7 @@ function slot_machine.draw()
             love.graphics.setColor(1, 0.5, 0)
         end
         
-        love.graphics.print("WIN! $" .. spin_win_amount, window_width / 2 - 60, spin_button.y - 40, 0, 1.5, 1.5)
+        love.graphics.print("WIN! $" .. data_loader.format_number_to_two_decimals(spin_win_amount), window_width / 2 - 60, spin_button.y - 40, 0, 1.5, 1.5)
     end
     
     -- Draw slot machine payout info if there's room

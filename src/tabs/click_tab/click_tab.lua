@@ -8,6 +8,7 @@ local button = require("src.ui.modules.button.button")
 local visualization = require("src.ui.modules.visualization")
 local manager_system = require("src.core.managers.manager_system")
 local slot_machine = require("src.tabs.click_tab.slot_machine")
+local data_loader = require("src.core.utils.data_loader")
 
 -- Tab variables
 local click_button = nil
@@ -127,8 +128,8 @@ function click_tab.draw()
     -- Draw clicker game content
     love.graphics.setColor(visualization.colors.text)
     love.graphics.print("Clicks: " .. shared_data.get_clicks(), 40, 110)
-    love.graphics.print("Money: $" .. shared_data.get_money(), 40, 140)
-    love.graphics.print("Money per click: $" .. manager_system.income.get_money_per_click(), 40, 170)
+    love.graphics.print("Money: $" .. data_loader.format_number_to_two_decimals(shared_data.get_money()), 40, 140)
+    love.graphics.print("Money per click: $" .. data_loader.format_number_to_two_decimals(manager_system.income.get_money_per_click()), 40, 170)
     
     -- Draw main click button
     click_button:draw()

@@ -7,6 +7,7 @@ local shared_data = require("src.core.game.shared_data")
 local button = require("src.ui.modules.button.button")
 local visualization = require("src.ui.modules.visualization")
 local manager_system = require("src.core.managers.manager_system")
+local data_loader = require("src.core.utils.data_loader")
 
 -- Tab variables
 local business_buttons = {}
@@ -290,8 +291,8 @@ function business_tab.draw()
     
     -- Draw global business stats
     love.graphics.setColor(visualization.colors.text)
-    love.graphics.print("Money: $" .. shared_data.get_money(), 40, 110)
-    love.graphics.print("Passive Income: $" .. manager_system.income.get_passive_income() .. "/sec", 40, 140)
+    love.graphics.print("Money: $" .. data_loader.format_number_to_two_decimals(shared_data.get_money()), 40, 110)
+    love.graphics.print("Passive Income: $" .. data_loader.format_number_to_two_decimals(manager_system.income.get_passive_income()) .. "/sec", 40, 140)
     
     -- Draw tab buttons
     for _, btn_data in ipairs(tab_buttons) do
@@ -375,7 +376,7 @@ function business_tab.draw()
                 love.graphics.print("PURCHASED", window_width - 270, y + 20)
             else
                 love.graphics.setColor(visualization.colors.text)
-                love.graphics.print("Cost: $" .. upgrade.cost, window_width - 270, y + 20)
+                love.graphics.print("Cost: $" .. data_loader.format_number_to_two_decimals(upgrade.cost), window_width - 270, y + 20)
             end
             
             -- Draw buy button
@@ -423,7 +424,7 @@ function business_tab.draw()
                 elseif milestone.type == "total_income" then
                     local total_income = manager_system.stats.get_total_income()
                     progress = math.min(1.0, total_income / milestone.target)
-                    progress_text = math.floor(total_income) .. "/" .. milestone.target
+                    progress_text = data_loader.format_number_to_two_decimals(total_income) .. "/" .. milestone.target
                 elseif milestone.type == "total_businesses" then
                     local total_businesses = 0
                     local businesses = manager_system.businesses.get_businesses()
@@ -431,7 +432,7 @@ function business_tab.draw()
                         total_businesses = total_businesses + business.owned
                     end
                     progress = math.min(1.0, total_businesses / milestone.target)
-                    progress_text = total_businesses .. "/" .. milestone.target
+                    progress_text = data_loader.format_number_to_two_decimals(total_businesses) .. "/" .. milestone.target
                 end
                 
                 -- Draw progress bar background
@@ -469,11 +470,11 @@ function business_tab.draw()
             if milestone.reward.type == "unlock_upgrade" then
                 reward_text = reward_text .. "Unlock New Upgrade"
             elseif milestone.reward.type == "money_bonus" then
-                reward_text = reward_text .. "$" .. milestone.reward.amount .. " Bonus"
+                reward_text = reward_text .. "$" .. data_loader.format_number_to_two_decimals(milestone.reward.amount) .. " Bonus"
             elseif milestone.reward.type == "global_income_multiplier" then
-                reward_text = reward_text .. "+" .. (milestone.reward.value * 100) .. "% Global Income"
+                reward_text = reward_text .. "+" .. data_loader.format_number_to_two_decimals(milestone.reward.value * 100) .. "% Global Income"
             elseif milestone.reward.type == "global_cost_reduction" then
-                reward_text = reward_text .. (milestone.reward.value * 100) .. "% Cost Reduction"
+                reward_text = reward_text .. data_loader.format_number_to_two_decimals(milestone.reward.value * 100) .. "% Cost Reduction"
             end
             love.graphics.print(reward_text, window_width - 300, y + 35)
             
@@ -487,12 +488,12 @@ function business_tab.draw()
         -- Display global modifiers if active
         if global_income_multi > 1.0 then
             love.graphics.setColor(0, 0.8, 0, 1)
-            love.graphics.print("Global Income Multiplier: +" .. math.floor((global_income_multi - 1.0) * 100) .. "%", window_width - 400, 200)
+            love.graphics.print("Global Income Multiplier: +" .. data_loader.format_number_to_two_decimals((global_income_multi - 1.0) * 100) .. "%", window_width - 400, 200)
         end
         
         if global_cost_reduction > 0 then
             love.graphics.setColor(0, 0.8, 0, 1)
-            love.graphics.print("Global Cost Reduction: " .. math.floor(global_cost_reduction * 100) .. "%", window_width - 400, 220)
+            love.graphics.print("Global Cost Reduction: " .. data_loader.format_number_to_two_decimals(global_cost_reduction * 100) .. "%", window_width - 400, 220)
         end
         
         local businesses = manager_system.businesses.get_businesses()
@@ -528,23 +529,23 @@ function business_tab.draw()
             end
             
             if global_cost_reduction > 0 then
-                love.graphics.print("Cost: $" .. actual_cost .. " (reduced from $" .. business.cost .. ")", 60, y + 30)
+                love.graphics.print("Cost: $" .. data_loader.format_number_to_two_decimals(actual_cost) .. " (reduced from $" .. data_loader.format_number_to_two_decimals(business.cost) .. ")", 60, y + 30)
             else
-                love.graphics.print("Cost: $" .. actual_cost, 60, y + 30)
+                love.graphics.print("Cost: $" .. data_loader.format_number_to_two_decimals(actual_cost), 60, y + 30)
             end
             
             -- Income with multiplier if applicable
             love.graphics.setColor(visualization.colors.text_secondary)
-            local income_text = "Income: $" .. business.income
+            local income_text = "Income: $" .. data_loader.format_number_to_two_decimals(business.income)
             if business.multiplier > 1.0 then
                 local actual_income = math.floor(business.income * business.multiplier)
-                income_text = income_text .. " x" .. string.format("%.2f", business.multiplier) .. " = $" .. actual_income
+                income_text = income_text .. " x" .. data_loader.format_number_to_two_decimals(business.multiplier) .. " = $" .. data_loader.format_number_to_two_decimals(actual_income)
             end
             love.graphics.print(income_text .. "/sec", 60, y + 50)
             
             -- Ownership info
             love.graphics.setColor(visualization.colors.text)
-            love.graphics.print("Owned: " .. business.owned, window_width - 270, y + 10)
+            love.graphics.print("Owned: " .. data_loader.format_number_to_two_decimals(business.owned), window_width - 270, y + 10)
             
             -- Level up cost
             if business.owned > 0 then
@@ -553,7 +554,7 @@ function business_tab.draw()
                 else
                     love.graphics.setColor(visualization.colors.text_secondary)
                 end
-                love.graphics.print("Upgrade: $" .. upgrade_cost, window_width - 270, y + 50)
+                love.graphics.print("Upgrade: $" .. data_loader.format_number_to_two_decimals(upgrade_cost), window_width - 270, y + 50)
                 
                 -- Draw level up button
                 level_up_buttons[i].button:draw()

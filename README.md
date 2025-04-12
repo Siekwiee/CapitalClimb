@@ -71,12 +71,12 @@ CapitalClimb is a business idle game where players start from nothing and build 
 ### Phase 3: Additional Features
 - [ ] Research tab and tech tree
 - [ ] Black Market mechanics
-- [ ] Alien Investors system
-- [ ] Extended upgrade paths
+- [ ] Balancing and progression refinement
+- [x] Extended upgrade paths
 
 ### Phase 4: Polish & Expansion
 - [ ] Visual and audio improvements
-- [ ] Balancing and progression refinement
+- [ ] Alien Investors system
 - [ ] Additional content (more businesses, techs, etc.)
 - [ ] Performance optimization
 

@@ -43,4 +43,9 @@ function data_loader.load_json(filepath)
     return result
 end
 
+-- Function to format numbers to two decimal places
+function data_loader.format_number_to_two_decimals(number)
+    return string.format("%.2f", number)
+end
+
 return data_loader 

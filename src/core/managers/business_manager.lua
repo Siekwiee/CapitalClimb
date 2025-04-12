@@ -35,24 +35,24 @@ function business_manager.init()
             shared_data.set_businesses({
                 {
                     name = "Lemonade Stand",
-                    cost = 10,
-                    income = 2,
+                    cost = 50,
+                    income = 1,
                     owned = 0,
                     level = 1,
                     multiplier = 1.0
                 },
                 {
                     name = "Coffee Shop",
-                    cost = 200,
-                    income = 10,
+                    cost = 500,
+                    income = 5,
                     owned = 0,
                     level = 1,
                     multiplier = 1.0
                 },
                 {
                     name = "Restaurant",
-                    cost = 1000,
-                    income = 80,
+                    cost = 2500,
+                    income = 40,
                     owned = 0,
                     level = 1,
                     multiplier = 1.0
@@ -104,9 +104,9 @@ function business_manager.buy_business(index)
         return false, "Business not found"
     end
     
-    local actual_cost = business.cost
+    local actual_cost = business.cost * (1.1 ^ business.owned)
     if global_cost_reduction > 0 then
-        actual_cost = math.floor(actual_cost * (1.0 - global_cost_reduction))
+        actual_cost = math.floor(actual_cost * (1.0 - math.min(global_cost_reduction, 0.5)))
     end
     
     if shared_data.get_money() < actual_cost then
@@ -170,9 +170,9 @@ function business_manager.get_business_cost(index)
         return 0
     end
     
-    local cost = business.cost
+    local cost = business.cost * (1.1 ^ business.owned)
     if global_cost_reduction > 0 then
-        cost = math.floor(cost * (1.0 - global_cost_reduction))
+        cost = math.floor(cost * (1.0 - math.min(global_cost_reduction, 0.5)))
     end
     
     return cost

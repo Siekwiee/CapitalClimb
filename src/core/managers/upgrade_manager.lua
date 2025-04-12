@@ -11,11 +11,11 @@ local upgrades = {
         id = "finger_strength",
         name = "Finger Strength",
         description = "Increase money per click by 1",
-        base_cost = 10,
-        base_effect = 1,
+        base_cost = 50,
+        base_effect = 0.5,
         max_level = 10,
         level = 0,
-        cost_multiplier = 1.5,  -- Each level becomes 1.5x more expensive
+        cost_multiplier = 2,
         get_cost = function(self)
             return math.floor(self.base_cost * (self.cost_multiplier ^ self.level))
         end,
@@ -31,11 +31,11 @@ local upgrades = {
         id = "double_click",
         name = "Double Click",
         description = "5% chance to click twice",
-        base_cost = 50,
-        base_effect = 0.05,  -- 5% per level
+        base_cost = 100,
+        base_effect = 0.02,
         max_level = 5,
         level = 0,
-        cost_multiplier = 2,
+        cost_multiplier = 3,
         get_cost = function(self)
             return math.floor(self.base_cost * (self.cost_multiplier ^ self.level))
         end,
@@ -51,11 +51,11 @@ local upgrades = {
         id = "auto_clicker",
         name = "Auto Clicker",
         description = "Automatically clicks once per second",
-        base_cost = 100,
-        base_effect = 1,  -- 1 click per second per level
+        base_cost = 200,
+        base_effect = 0.5,
         max_level = 3,
         level = 0,
-        cost_multiplier = 3,
+        cost_multiplier = 4,
         get_cost = function(self)
             return math.floor(self.base_cost * (self.cost_multiplier ^ self.level))
         end,
