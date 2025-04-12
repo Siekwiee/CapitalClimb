@@ -7,6 +7,7 @@ local save_manager = require("src.core.utils.save_manager")
 local navbar = require("src.ui.navbar")  -- Import navbar
 local shared_data = require("src.core.game.shared_data")
 local manager_system = require("src.core.managers.manager_system")
+local background_manager = require("src.core.game.background_manager")  -- Import background manager
 
 -- Import tabs
 local click_tab = require("src.tabs.click_tab.click_tab")
@@ -38,6 +39,21 @@ function game.init()
     
     -- Set default font
     love.graphics.setFont(default_game_font)
+
+    -- Apply display settings
+    local display_settings = shared_data.get_display_settings()
+    love.window.setMode(
+        display_settings.width or 1920, 
+        display_settings.height or 1080, 
+        {
+            fullscreen = display_settings.fullscreen or false,
+            resizable = true,
+            vsync = true
+        }
+    )
+
+    -- Initialize background manager
+    background_manager.init()
 
     -- Register main game state
     game_state.register("main_game", {
@@ -106,6 +122,9 @@ function game.init()
             -- Update manager system
             manager_system.update(dt)
             
+            -- Update background
+            background_manager.update(dt)
+            
             -- Update navbar animations
             navbar.update(dt)
             
@@ -121,6 +140,9 @@ function game.init()
             save_manager.update(dt)
         end,
         draw = function()
+            -- Draw background
+            background_manager.draw("playstate")
+            
             -- Draw current tab
             if tabs[current_tab] and tabs[current_tab].draw then
                 tabs[current_tab].draw()
@@ -191,12 +213,11 @@ function game.init()
             love.graphics.setFont(title_font)
         end,
         draw = function()
+            -- Draw background
+            background_manager.draw("menu")
+            
             -- Get window dimensions for centered positioning
             local width, height = love.graphics.getDimensions()
-            
-            -- Draw a simple gradient background
-            love.graphics.setColor(0.1, 0.2, 0.3, 1)
-            love.graphics.rectangle("fill", 0, 0, width, height)
             
             -- Draw title with larger font
             love.graphics.setFont(title_font)

@@ -23,7 +23,7 @@ local animation = {
 
 -- Colors for visual styling
 local colors = {
-    background = {0.15, 0.15, 0.18},
+    background = {0.15, 0.15, 0.18, 0.1},
     inactive_tab = {0.22, 0.22, 0.25},
     active_tab = {0.3, 0.4, 0.9},
     hover_tab = {0.25, 0.35, 0.7},
@@ -84,14 +84,10 @@ function navbar.draw()
     love.graphics.setColor(colors.separator)
     love.graphics.rectangle("fill", 0, 60, love.graphics.getWidth(), 2)
     
-    -- Game title
-    love.graphics.setColor(colors.title)
-    love.graphics.print("Capital Climb", 20, 20)
-    
     -- Show passive income if available
     if passive_income and passive_income > 0 then
         love.graphics.setColor(colors.passive_income)
-        love.graphics.print("$" .. passive_income .. "/sec", 150, 20)
+        love.graphics.print("$" .. passive_income .. "/sec", 20, 20)
     end
     
     -- Tab buttons

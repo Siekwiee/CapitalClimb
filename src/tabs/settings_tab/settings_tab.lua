@@ -249,10 +249,6 @@ function settings_tab.draw()
     -- Draw the navbar
     navbar.draw()
     
-    -- Draw the content area (below navbar)
-    love.graphics.setColor(visualization.colors.background)
-    love.graphics.rectangle("fill", 0, 62, window_width, window_height - 62)
-    
     -- Draw main panel
     visualization.draw_panel(20, 82, window_width - 40, window_height - 102)
     

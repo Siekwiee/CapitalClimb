@@ -11,8 +11,8 @@ local upgrades = {}
 local stats = {}
 local display_settings = {
     fullscreen = false,
-    width = 1280,
-    height = 720
+    width = 1920,
+    height = 1080
 }
 
 -- Getters and setters for money

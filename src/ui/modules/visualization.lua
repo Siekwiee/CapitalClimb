@@ -118,7 +118,7 @@ visualization.button_styles = {
 -- Panel styles
 visualization.panel_styles = {
     main = {
-        background = visualization.colors.panel,
+        background = {0.2, 0.2, 0.25, 0.1},
         border_width = 1,
         border_color = {1, 1, 1, 0.1},
         roundness = 8,
