@@ -14,7 +14,7 @@ local slot_symbols = {
     {symbol = "money", weight = 25, multiplier = 25},
     {symbol = "diamond", weight = 15, multiplier = 100},
     {symbol = "clover", weight = 20, multiplier = 50},
-    {symbol = "dice", weight = 5, multiplier = 200}
+    {symbol = "luckySeven", weight = 5, multiplier = 200}
 }
 
 -- Images for symbols
@@ -43,7 +43,7 @@ local show_win_animation = false
 local win_animation_time = 0
 
 -- Symbol display data
-local symbol_size = 48  -- Size of symbol images in pixels
+local symbol_size = 64  -- Size of symbol images in pixels
 
 -- Generate weighted random symbols for a reel
 local function generate_reel_symbols()
@@ -101,7 +101,7 @@ function slot_machine.init()
                 love.graphics.setColor(0, 0.5, 1)  -- Blue
             elseif symbol_data.symbol == "clover" then
                 love.graphics.setColor(0, 0.8, 0.2)  -- Green
-            elseif symbol_data.symbol == "dice" then
+            elseif symbol_data.symbol == "luckySeven" then
                 love.graphics.setColor(0.8, 0, 0.8)  -- Purple
             end
             
@@ -241,30 +241,32 @@ function slot_machine.update(dt)
     local window_width = love.graphics.getWidth()
     local window_height = love.graphics.getHeight()
     
-    -- Calculate responsive panel size for positioning
-    local panel_height = math.min(300, window_height - 350)
+    -- Calculate responsive panel size
+    local panel_width = math.min(800, window_width - 60)
+    local panel_height = math.min(400, window_height - 350)
+    local panel_x = window_width / 2 - panel_width / 2
     local panel_y = 260
     
     -- Make sure panel fits on smaller screens
     if window_height < 600 then
         panel_y = 230
-        panel_height = math.min(panel_height, 220)
+        panel_height = math.min(panel_height, 320)
     end
     
     -- Calculate button positions based on screen size
-    local button_y = math.min(window_height - 150, panel_y + panel_height + 50)
+    local button_y = math.min(window_height - 150, panel_y + panel_height + 70)
     if window_height < 600 then
-        button_y = math.min(window_height - 120, panel_y + panel_height + 40)
+        button_y = math.min(window_height - 120, panel_y + panel_height + 60)
     end
     
     -- Update slot machine positions
-    spin_button.x = window_width / 2 - 50
+    spin_button.x = window_width / 2 - 60
     spin_button.y = button_y
-    bet_decrease_button.x = window_width / 2 - 110
+    bet_decrease_button.x = window_width / 2 - 120
     bet_decrease_button.y = button_y
-    bet_increase_button.x = window_width / 2 + 55
+    bet_increase_button.x = window_width / 2 + 65
     bet_increase_button.y = button_y
-    auto_spin_button.x = window_width / 2 + 105
+    auto_spin_button.x = window_width / 2 + 115
     auto_spin_button.y = button_y
     
     -- Update button states
@@ -343,15 +345,15 @@ function slot_machine.draw()
     local window_height = love.graphics.getHeight()
     
     -- Calculate responsive panel size
-    local panel_width = math.min(600, window_width - 60)
-    local panel_height = math.min(300, window_height - 350)
+    local panel_width = math.min(800, window_width - 60)
+    local panel_height = math.min(400, window_height - 350)
     local panel_x = window_width / 2 - panel_width / 2
     local panel_y = 260
     
     -- Make sure panel fits on smaller screens
     if window_height < 600 then
         panel_y = 230
-        panel_height = math.min(panel_height, 220)
+        panel_height = math.min(panel_height, 320)
     end
     
     -- Draw slot machine panel
@@ -362,14 +364,14 @@ function slot_machine.draw()
     love.graphics.print("SLOT MACHINE", panel_x + 20, panel_y + 20)
     
     -- Calculate reel sizes based on panel
-    local reel_width = math.min(100, (panel_width - 100) / 3)
-    local reel_height = math.min(150, panel_height - 100)
-    local reel_spacing = 20
+    local reel_width = math.min(140, (panel_width - 120) / 3)
+    local reel_height = math.min(250, panel_height - 100)
+    local reel_spacing = 30
     local start_x = window_width / 2 - ((reel_width * 3 + reel_spacing * 2) / 2)
     local start_y = panel_y + 70
     
     -- Make sure reels fit vertically
-    if panel_height < 250 then
+    if panel_height < 350 then
         start_y = panel_y + 50
         reel_height = panel_height - 80
     end
@@ -461,21 +463,32 @@ function slot_machine.draw()
     
     -- Draw slot machine payout info if there's room
     if window_height >= 700 then
-        love.graphics.setColor(visualization.colors.text_secondary)
-        love.graphics.print("PAYOUTS:", panel_x + 20, panel_y + panel_height + 20)
+        -- Draw payout table background
+        love.graphics.setColor(0.1, 0.1, 0.1, 0.8)
+        local payout_panel_width = 200
+        local payout_panel_height = (#slot_symbols * 40) + 60  -- Increased height per row plus header
+        local payout_x = panel_x + panel_width + 20
+        local payout_y = panel_y
+        
+        visualization.draw_panel(payout_x, payout_y, payout_panel_width, payout_panel_height)
+        
+        -- Draw payout table header
+        love.graphics.setColor(visualization.colors.text)
+        love.graphics.print("PAYOUTS", payout_x + payout_panel_width/2 - 30, payout_y + 20)
         
         for i, symbol_data in ipairs(slot_symbols) do
             -- Show image and multiplier
-            local text_y = panel_y + panel_height + 20 + i * 20
+            local text_y = payout_y + 50 + (i-1) * 40  -- Increased vertical spacing
             love.graphics.setColor(1, 1, 1)
             local image = symbol_images[symbol_data.symbol]
             if image then
-                local scale = 0.5  -- Smaller scale for the payout table
-                love.graphics.draw(image, panel_x + 20, text_y, 0, scale, scale)
+                local scale = 0.75  -- Larger scale for better visibility
+                love.graphics.draw(image, payout_x + 20, text_y, 0, scale, scale)
             end
             
+            -- Draw multiplier text with better spacing
             love.graphics.setColor(visualization.colors.text_secondary)
-            love.graphics.print("× 3: " .. symbol_data.multiplier .. "x bet", panel_x + 50, text_y)
+            love.graphics.print("× 3:  " .. symbol_data.multiplier .. "x", payout_x + 80, text_y + 20)
         end
     end
 end
