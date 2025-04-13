@@ -20,7 +20,7 @@ function click_tab.init()
     
     -- Create main click button
     click_button = button.new(
-        love.graphics.getWidth() / 2 - 100, 150, 200, 80, 
+        love.graphics.getWidth() / 2 - 100, 100, 200, 80, 
         "CLICK ME", 
         "accent"  -- Using the accent style from visualization
     )
@@ -165,7 +165,9 @@ function click_tab.draw()
     end
     
     -- Draw slot machine
-    slot_machine.draw()
+    if slot_machine.draw then  -- Check if draw function exists
+        slot_machine.draw()
+    end
     
     -- Draw auto-click rate info if applicable
     local auto_click_rate = manager_system.income.get_auto_click_rate()
