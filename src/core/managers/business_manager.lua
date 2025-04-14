@@ -150,8 +150,12 @@ function business_manager.upgrade_business_level(index)
     shared_data.add_money(-upgrade_cost)
     business.level = business.level + 1
     
-    -- Each level increases income by 50%
-    business.income = math.floor(business.income * 1.5)
+    -- Each level increases income or token generation by 50%
+    if business.income and business.income > 0 then
+        business.income = math.floor(business.income * 1.5)
+    elseif business.token_generation and business.token_generation > 0 then
+        business.token_generation = math.floor(business.token_generation * 1.5)
+    end
     
     shared_data.update_business(index, business)
     

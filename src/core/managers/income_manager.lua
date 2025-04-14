@@ -19,6 +19,7 @@ function income_manager.calculate_passive_income()
     local businesses = shared_data.get_businesses()
     
     for _, business in ipairs(businesses) do
+        -- Calculate income if business has income property
         if business.income then
             -- Calculate income based on level, owned count, and multiplier
             local business_income = business.income * business.owned
@@ -27,12 +28,15 @@ function income_manager.calculate_passive_income()
             business_income = business_income * business.multiplier
             
             total_income = total_income + math.floor(business_income)
-        elseif business.token_generation then -- Check for token generation
-             -- Calculate token generation based on level, owned count, and multiplier (assuming multiplier applies)
+        end
+        
+        -- Calculate token generation if business has token_generation property (separate check)
+        if business.token_generation then
+            -- Calculate token generation based on level, owned count, and multiplier
             local business_tokens = business.token_generation * business.owned
             
-            -- Apply multiplier (from upgrades and synergies) - TBD if multipliers affect tokens
-            business_tokens = business_tokens * (business.multiplier or 1.0) -- Use multiplier if it exists
+            -- Apply multiplier (from upgrades and synergies)
+            business_tokens = business_tokens * (business.multiplier or 1.0)
             
             total_tokens = total_tokens + math.floor(business_tokens)
         end
@@ -41,7 +45,7 @@ function income_manager.calculate_passive_income()
     passive_income = total_income
     passive_token_generation = total_tokens -- Store calculated tokens
 
-    -- Return both values, although the caller might only use income for now
+    -- Return both values
     return passive_income, passive_token_generation 
 end
 
