@@ -6,6 +6,7 @@ local shared_data = {}
 -- Shared variables
 local money = 0
 local clicks = 0
+local tokens = 0
 local businesses = {}
 local upgrades = {}
 local stats = {}
@@ -39,6 +40,19 @@ end
 
 function shared_data.set_clicks(amount)
     clicks = amount
+end
+
+-- Getters and setters for tokens (New)
+function shared_data.get_tokens()
+    return tokens
+end
+
+function shared_data.add_tokens(amount)
+    tokens = tokens + amount
+end
+
+function shared_data.set_tokens(amount)
+    tokens = amount
 end
 
 -- Getters and setters for businesses

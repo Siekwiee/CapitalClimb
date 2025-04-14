@@ -16,5 +16,12 @@
         "cost": 1000,
         "income": 80,
         "owned": 0
+    },
+    {
+        "name": "Casino",
+        "cost": 5000,
+        "income": 0,
+        "token_generation": 1,
+        "owned": 0
     }
 ]

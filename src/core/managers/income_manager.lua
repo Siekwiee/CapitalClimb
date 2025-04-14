@@ -6,6 +6,7 @@ local shared_data = require("src.core.game.shared_data")
 
 -- Local variables
 local passive_income = 0
+local passive_token_generation = 0 -- Added for tokens
 local money_per_click = 1
 local click_double_chance = 0
 local auto_click_rate = 0
@@ -13,21 +14,35 @@ local auto_click_timer = 0
 
 -- Calculate the current passive income from businesses
 function income_manager.calculate_passive_income()
-    local total = 0
+    local total_income = 0
+    local total_tokens = 0 -- Added for tokens
     local businesses = shared_data.get_businesses()
     
     for _, business in ipairs(businesses) do
-        -- Calculate income based on level, owned count, and multiplier
-        local business_income = business.income * business.owned
-        
-        -- Apply multiplier (from upgrades and synergies)
-        business_income = business_income * business.multiplier
-        
-        total = total + math.floor(business_income)
+        if business.income then
+            -- Calculate income based on level, owned count, and multiplier
+            local business_income = business.income * business.owned
+            
+            -- Apply multiplier (from upgrades and synergies)
+            business_income = business_income * business.multiplier
+            
+            total_income = total_income + math.floor(business_income)
+        elseif business.token_generation then -- Check for token generation
+             -- Calculate token generation based on level, owned count, and multiplier (assuming multiplier applies)
+            local business_tokens = business.token_generation * business.owned
+            
+            -- Apply multiplier (from upgrades and synergies) - TBD if multipliers affect tokens
+            business_tokens = business_tokens * (business.multiplier or 1.0) -- Use multiplier if it exists
+            
+            total_tokens = total_tokens + math.floor(business_tokens)
+        end
     end
     
-    passive_income = total
-    return passive_income
+    passive_income = total_income
+    passive_token_generation = total_tokens -- Store calculated tokens
+
+    -- Return both values, although the caller might only use income for now
+    return passive_income, passive_token_generation 
 end
 
 -- Get current passive income
@@ -35,10 +50,16 @@ function income_manager.get_passive_income()
     return passive_income
 end
 
+-- Get current passive token generation (New)
+function income_manager.get_passive_token_generation()
+    return passive_token_generation
+end
+
 -- Process passive income tick - returns the amount earned
 function income_manager.process_passive_income_tick()
     shared_data.add_money(passive_income)
-    return passive_income
+    shared_data.add_tokens(passive_token_generation) -- Add generated tokens
+    return passive_income -- Keep returning only income for now, might need adjustment later
 end
 
 -- Process a click (manually or auto)

@@ -68,14 +68,14 @@ function slot_machine.init()
 end
 
 function slot_machine.spin()
-    -- Check if player has enough money
-    if shared_data.get_money() < bet_amount then
+    -- Check if player has enough tokens
+    if shared_data.get_tokens() < bet_amount then
         is_auto_spinning = false
         return false
     end
     
-    -- Deduct bet amount
-    shared_data.add_money(-bet_amount)
+    -- Deduct bet amount in tokens
+    shared_data.add_tokens(-bet_amount)
     
     -- Reset spin data
     is_spinning = true
@@ -123,13 +123,13 @@ function slot_machine.update(dt)
     end
     
     -- Update buttons
-    ui_elements.spin_button:set_enabled(shared_data.get_money() >= bet_amount and not is_spinning)
+    ui_elements.spin_button:set_enabled(shared_data.get_tokens() >= bet_amount and not is_spinning)
     ui_elements.spin_button:update(dt, mx, my, mouse_pressed)
     ui_elements.bet_decrease_button:set_enabled(bet_index > 1 and not is_spinning)
     ui_elements.bet_decrease_button:update(dt, mx, my, mouse_pressed)
     ui_elements.bet_increase_button:set_enabled(bet_index < #bet_options and not is_spinning)
     ui_elements.bet_increase_button:update(dt, mx, my, mouse_pressed)
-    ui_elements.auto_spin_button:set_enabled(shared_data.get_money() >= bet_amount)
+    ui_elements.auto_spin_button:set_enabled(shared_data.get_tokens() >= bet_amount)
     ui_elements.auto_spin_button:update(dt, mx, my, mouse_pressed)
     
     -- Update animation
@@ -227,7 +227,7 @@ function slot_machine.draw()
     
     -- Draw bet amount on spin button
     love.graphics.setColor(visualization.colors.text)
-    local bet_text = "SPIN: $" .. bet_amount
+    local bet_text = "SPIN: T" .. bet_amount
     local font = love.graphics.getFont()
     local text_width = font:getWidth(bet_text)
     local text_height = font:getHeight()

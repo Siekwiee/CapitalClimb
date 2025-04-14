@@ -122,14 +122,16 @@ function click_tab.draw()
     -- Draw main panel
     visualization.draw_panel(20, 82, window_width - 40, window_height - 102)
     
-    -- Draw stats panel
-    visualization.draw_panel(20, 100, 220, 120)
+    -- Draw stats panel (Increased height from 120 to 150)
+    visualization.draw_panel(20, 100, 220, 150)
     
     -- Draw clicker game content
     love.graphics.setColor(visualization.colors.text)
     love.graphics.print("Clicks: " .. shared_data.get_clicks(), 40, 110)
     love.graphics.print("Money: $" .. data_loader.format_number_to_two_decimals(shared_data.get_money()), 40, 140)
     love.graphics.print("Money per click: $" .. data_loader.format_number_to_two_decimals(manager_system.income.get_money_per_click()), 40, 170)
+    -- Display Tokens (New)
+    love.graphics.print("Tokens: T" .. data_loader.format_number_to_two_decimals(shared_data.get_tokens()), 40, 200)
     
     -- Draw main click button
     click_button:draw()
